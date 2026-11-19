@@ -1,6 +1,12 @@
+<p align="center">
+  <img src="app/src/main/res/drawable/img_cosmos_cover.jpg" alt="Cosmos IX — Relativistic Astrophysics & 3D Observatory" width="100%" />
+</p>
+
 # Cosmos IX — Relativistic Astrophysics & 3D Observatory (Android)
 
 **Cosmos IX** is a native Android **Kotlin + Jetpack Compose + OpenGL ES 3.0** relativistic space simulator, Kerr black hole laboratory, helical solar vortex visualizer, and live Earth-sky observatory featuring an Arabic RTL luxury observatory interface.
+
+> **Automatic APK Downloads:** Every push to `main` triggers the included GitHub Actions workflow (`.github/workflows/build-apk.yml`) to run unit tests and publish an installable **`CosmosIX-debug.apk`** automatically under your repository's **Releases** and **Actions → Artifacts**.
 
 ---
 
