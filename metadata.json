@@ -1,0 +1,6 @@
+{
+  "name": "Cosmos IX",
+  "description": "محرك محاكاة الفضاء النسبي والثقب الأسود ومنظور السماء الفاخر بدقة فائقة وصوت مكاني 8D",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#03050c" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>COSMOS VIII — 8K Relativistic & 8D Space App</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root{--gold:#ebd091;--cyan:#38e8ff;--amber:#ff9852;--ink:#f1f5fc;--mute:#8e9db5;--glass:rgba(7,10,19,.68);--glass2:rgba(10,15,29,.92);--line:rgba(255,255,255,.10);--lineG:rgba(235,208,145,.30);--ease:cubic-bezier(.16,1,.3,1);--sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02040a;color:var(--ink);font-family:'Cairo',system-ui,sans-serif;touch-action:none;user-select:none;-webkit-user-select:none}
+  canvas#cosmosCanvas{position:fixed;inset:0;width:100%;height:100%;display:block;outline:none}
+  .mono{font-family:'JetBrains Mono',monospace;direction:ltr;unicode-bidi:embed}
+  .lux{background:var(--glass);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid var(--line);box-shadow:0 18px 48px rgba(0,0,0,.68),inset 0 1px 0 rgba(255,255,255,.11);border-radius:18px}
+  button{font:inherit;color:inherit;cursor:pointer;border:1px solid transparent;background:transparent;border-radius:12px;touch-action:manipulation;transition:background .2s var(--ease),border-color .2s,transform .12s,box-shadow .2s}
+  button:hover{background:rgba(255,255,255,.06)} button:active{transform:scale(.95)}
+  .on{background:linear-gradient(135deg,rgba(56,232,255,.22),rgba(56,232,255,.08))!important;border-color:rgba(56,232,255,.72)!important;color:#fff!important;box-shadow:0 0 18px rgba(56,232,255,.24)}
+  .on-gold{background:linear-gradient(135deg,rgba(235,208,145,.24),rgba(235,208,145,.08))!important;border-color:rgba(235,208,145,.75)!important;color:#fff8e6!important;box-shadow:0 0 20px rgba(235,208,145,.24)}
+  .on-bh{background:linear-gradient(135deg,rgba(255,148,77,.28),rgba(255,90,40,.10))!important;border-color:rgba(255,168,95,.85)!important;color:#fff!important;box-shadow:0 0 22px rgba(255,130,50,.32)}
+  .hidden{display:none!important}
+
+  #splash{position:fixed;inset:0;z-index:100;background:radial-gradient(circle at 50% 48%,#0b142c 0%,#03050c 64%,#000 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .85s var(--ease),visibility .85s}
+  #splash.out{opacity:0;visibility:hidden;pointer-events:none}
+  .sring{width:76px;height:76px;border-radius:50%;position:relative;border:1px solid rgba(235,208,145,.25);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(56,232,255,.16)}
+  .sring::before{content:'';position:absolute;inset:-6px;border-radius:50%;border:1.5px solid transparent;border-top-color:var(--gold);border-right-color:var(--cyan);animation:spin 1.4s linear infinite}
+  .sring::after{content:'';width:11px;height:11px;border-radius:50%;background:radial-gradient(circle,#fff 0%,var(--gold) 60%,transparent 100%);box-shadow:0 0 18px var(--gold)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .stitle{font-size:19px;font-weight:800;letter-spacing:5px;color:var(--gold)} .ssub{font-size:11.5px;color:var(--mute)}
+
+  body.cinema #topbar,body.cinema #dock,body.cinema #hudSide,body.cinema #infoCard,body.cinema .drawer{opacity:0!important;pointer-events:none!important;transform:translateY(10px)}
+  #cinemaExit{position:fixed;top:calc(12px + var(--sat));left:12px;z-index:60;padding:7px 15px;font-size:12px;color:var(--gold);border-radius:999px;opacity:0;pointer-events:none;transition:opacity .3s}
+  body.cinema #cinemaExit{opacity:.92;pointer-events:auto}
+
+  #labelsLayer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+  .lbl{position:absolute;font-size:11px;font-weight:600;white-space:nowrap;will-change:transform;padding:2px 8px;border-radius:999px;background:rgba(5,9,18,.62);border:1px solid rgba(255,255,255,.14);text-shadow:0 1px 3px #000;display:none}
+  .lbl.sky,.lbl.con{background:none;border:0;padding:0;text-shadow:0 1px 4px #000,0 0 8px #000} .lbl.con{opacity:.65}
+  .lbl.bh-tag{border-color:rgba(255,165,90,.48);background:rgba(24,12,5,.75)}
+
+  #topbar{position:fixed;top:calc(10px + var(--sat));left:10px;right:10px;z-index:25;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none;transition:opacity .35s,transform .35s}
+  #topbar>*{pointer-events:auto}
+  .brand{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;flex-shrink:0}
+  .emblem{width:20px;height:20px;border-radius:50%;border:1px solid rgba(235,208,145,.38);display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(235,208,145,.32),transparent)}
+  .emblem::after{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold);animation:pl 2.4s infinite}
+  @keyframes pl{50%{opacity:.35;transform:scale(.8)}}
+  .brand b{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--gold);display:flex;align-items:center;gap:5px}
+  .brand small{display:block;font-size:9.5px;color:var(--mute)}
+  .chip{font-size:9px;padding:1px 6px;border-radius:999px;letter-spacing:0;background:rgba(52,211,153,.16);color:#6ee7b7}
+  .mode-wrap{display:flex;gap:3px;padding:4px;border-radius:999px;overflow-x:auto;scrollbar-width:none;max-width:100%}
+  .mode-wrap::-webkit-scrollbar{display:none}
+  .mode-wrap button{padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--mute);border-radius:999px;white-space:nowrap}
+  .mode-wrap button[data-mode="blackhole"]{color:#ffba82}
+  .tools{display:flex;gap:5px;flex-shrink:0}
+  .ipill{padding:6px 11px;font-size:11.5px;font-weight:600;border-radius:999px;display:flex;align-items:center;gap:5px}
+  .ibtn{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13.5px}
+
+  #infoCard{position:fixed;top:calc(62px + var(--sat));right:10px;width:min(285px,calc(100vw - 20px));z-index:18;padding:8px 12px;font-size:11px;max-height:42vh;overflow-y:auto;transition:opacity .35s,transform .35s}
+  #infoCard .hd{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer}
+  #infoTitle{font-weight:700;font-size:13.5px;color:var(--gold)} #infoSub{font-size:10px;color:var(--mute)}
+  #infoBody{margin-top:8px;border-top:1px solid var(--line);padding-top:7px;display:grid;gap:5px}
+  .row{display:flex;justify-content:space-between;gap:8px} .row span:first-child{color:var(--mute)} .row span:last-child{color:#d8f4ff;text-align:left}
+  .row.rel span:last-child{color:var(--gold)} .row.bh span:last-child{color:#ffb980;font-weight:600}
+  #infoCard.min #infoBody{display:none}
+  #chev{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;color:var(--gold);transition:transform .25s}
+  #infoCard.min #chev{transform:rotate(180deg)}
+
+  #hudSide{position:fixed;top:calc(62px + var(--sat));left:10px;z-index:18;display:flex;flex-direction:column;gap:7px;width:min(265px,calc(100vw - 20px));pointer-events:none;transition:opacity .35s}
+  #hudSide>*{pointer-events:auto}
+  .hbox{padding:9px 12px;font-size:11px;display:flex;flex-direction:column;gap:6px}
+  .wrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .bh-p{display:flex;gap:4px} .bh-p button{flex:1;padding:4px 5px;font-size:10.5px;background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);color:var(--mute)}
+  .bh-b{display:flex;gap:5px} #btnBhDive{flex:1;padding:6px;font-size:11px;background:rgba(255,140,60,.16);border-color:rgba(255,155,80,.45);color:#ffd0a6}
+  #btnBhSheet{padding:6px 9px;font-size:11px;background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.14)}
+  #btnGyro{padding:6px;font-size:11px;background:rgba(56,232,255,.12);border-color:rgba(56,232,255,.4);color:#9bf2ff;width:100%}
+
+  #dock{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--sab));z-index:24;display:flex;flex-direction:column;gap:6px;pointer-events:none;transition:opacity .35s,transform .35s}
+  #dock>*{pointer-events:auto}
+  #bodyBar{display:flex;align-items:center;gap:4px;padding:4px 6px;border-radius:999px;overflow-x:auto;scrollbar-width:none}
+  #bodyBar::-webkit-scrollbar{display:none}
+  #bodyBar button{flex:0 0 auto;padding:5px 11px;font-size:11.5px;font-weight:600;color:var(--mute);border-radius:999px;display:flex;align-items:center;gap:6px}
+  #bodyBar i{width:9px;height:9px;border-radius:50%;display:inline-block;box-shadow:inset -2px -2px 3px rgba(0,0,0,.55),0 0 8px currentColor}
+  #bodyBar i.bh-dot{background:#040408!important;border:1.5px solid var(--amber);box-shadow:0 0 9px #ff7b29}
+  #controlDock{padding:6px 9px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+  .grp{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+  .btn{padding:5px 10px;font-size:11.5px;font-weight:600;background:rgba(255,255,255,.055);border-color:rgba(255,255,255,.1);border-radius:10px}
+  .btn-gold{background:rgba(235,208,145,.14);border-color:rgba(235,208,145,.38);color:var(--gold)}
+  .spd{padding:4px 7px;font-size:10.5px;color:var(--mute)}
+
+  .drawer{position:fixed;left:10px;right:10px;bottom:calc(10px + var(--sab));z-index:45;max-height:72vh;overflow-y:auto;padding:14px 16px;background:var(--glass2);border-color:var(--lineG);animation:dIn .28s var(--ease)}
+  @keyframes dIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+  .drawer h3{margin:0 0 10px;font-size:13.5px;color:var(--gold);display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  .drawer .x{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08)}
+  .sec{margin:11px 0 6px;font-size:10px;color:var(--cyan);font-weight:700;letter-spacing:.6px}
+  .chips{display:flex;flex-wrap:wrap;gap:5px} .chips button{padding:5px 10px;font-size:11px;font-weight:600;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);border-radius:10px}
+  .opt{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:7px 2px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.045)}
+  .opt small{display:block;font-size:10px;color:var(--mute)}
+  .opt input[type=checkbox]{width:38px;height:20px;appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.14);border-radius:99px;position:relative;cursor:pointer;transition:.2s}
+  .opt input[type=checkbox]::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.2s}
+  .opt input[type=checkbox]:checked{background:linear-gradient(90deg,#0ea5e9,var(--cyan))} .opt input[type=checkbox]:checked::after{left:20px}
+  .opt select{background:#090e1c;color:#fff;border:1px solid var(--lineG);border-radius:8px;padding:4px 8px;font:inherit;font-size:11.5px}
+  .rw{display:flex;align-items:center;gap:7px} .rw input{width:110px;accent-color:var(--gold);cursor:pointer} .rv{min-width:36px;font-size:11px;color:var(--gold);text-align:left}
+  #coords{font-size:11px;color:#aef3ff;margin-top:8px;padding:6px 9px;background:rgba(0,0,0,.3);border-radius:9px}
+  #credit{position:fixed;bottom:2px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,.4);z-index:3;pointer-events:none}
+  #toast{position:fixed;top:calc(66px + var(--sat));left:50%;transform:translate(-50%,-10px);z-index:65;padding:7px 16px;font-size:11.5px;font-weight:600;color:var(--gold);background:rgba(8,12,24,.94);border:1px solid var(--lineG);border-radius:999px;opacity:0;transition:.28s;pointer-events:none;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  @media(max-width:780px){.brand small,.hide-sm{display:none!important}#topbar{flex-wrap:wrap;row-gap:6px}.mode-wrap{order:3;width:100%}#infoCard{top:calc(108px + var(--sat))}#hudSide{top:calc(158px + var(--sat))}}
+  @media(min-width:900px){#dock{left:50%;right:auto;width:min(940px,calc(100vw - 24px));transform:translateX(-50%)}.drawer{left:auto;right:14px;top:calc(64px + var(--sat));bottom:calc(112px + var(--sab));width:380px;max-height:none}}
+</style>
+</head>
+<body>
+<div id="splash"><div class="sring"></div><div class="stitle">COSMOS VIII</div><div class="ssub">محرك الفضاء النسبي 8K · صوت مكاني 8D</div></div>
+<canvas id="cosmosCanvas"></canvas>
+<div id="labelsLayer"></div>
+<button id="cinemaExit" class="lux">👁 إظهار الواجهة</button>
+
+<header id="topbar">
+  <div class="brand lux"><div class="emblem"></div><div><b>COSMOS VIII <span id="loadChip" class="chip">8K</span></b><small id="clock" class="mono">--:--:-- UTC</small></div></div>
+  <nav class="mode-wrap lux" id="modeSeg">
+    <button data-mode="space" class="on-gold">الفضاء</button>
+    <button data-mode="helical">الحلزوني</button>
+    <button data-mode="earth">سماؤك الآن</button>
+    <button data-mode="galaxy">درب التبانة</button>
+    <button data-mode="blackhole">🕳 الثقب الأسود</button>
+  </nav>
+  <div class="tools">
+    <button id="btnAudio" class="lux ipill">🎧 <span class="hide-sm">صوت 8D</span></button>
+    <button id="btnSnap" class="lux ibtn" title="لقطة 8K">📸</button>
+    <button id="btnCinema" class="lux ibtn" title="وضع السينما">👁</button>
+  </div>
+</header>
+
+<aside id="infoCard" class="lux min">
+  <div class="hd" id="infoHd"><div><div id="infoTitle">الأرض</div><div id="infoSub">Earth · اضغط للتفاصيل</div></div><div id="chev">▾</div></div>
+  <div id="infoBody"></div>
+</aside>
+
+<div id="hudSide">
+  <aside id="skyHud" class="lux hbox hidden">
+    <div class="wrow"><span>☁ الغيوم الحية</span><b id="weatherCloud" class="mono">--%</b></div>
+    <div class="wrow"><span>🌡 الطقس</span><b id="weatherDesc">--</b></div>
+    <button id="btnGyro">📱 مستشعر الجوال (وجّه للسماء)</button>
+  </aside>
+  <aside id="bhHud" class="lux hbox hidden" style="border-color:rgba(255,155,80,.4)">
+    <div class="wrow"><b style="color:#ffbe82">🕳 مختبر الثقب الأسود</b><span id="bhPresetBadge" class="mono" style="color:#aef3ff">Sgr A*</span></div>
+    <div class="bh-p" id="bhPresetBar"><button data-bh="sgrA" class="on-bh">الرامي A*</button><button data-bh="m87">M87*</button><button data-bh="cygX1">Cyg X-1</button></div>
+    <div class="wrow"><span>📏 البعد</span><b id="bhDistReadout" class="mono">-- r_s</b></div>
+    <div class="wrow"><span>⏳ سريان الزمن</span><b id="bhTimeReadout" class="mono" style="color:var(--gold)">--%</b></div>
+    <div class="wrow"><span>⚡ سرعة الإفلات</span><b id="bhEscReadout" class="mono" style="color:#ffb478">-- c</b></div>
+    <div class="bh-b"><button id="btnBhDive">🚀 السقوط لأفق الحدث</button><button id="btnBhSheet">⚙ الفيزياء</button></div>
+  </aside>
+</div>
+
+<div id="toast"></div>
+<div id="credit"></div>
+
+<footer id="dock">
+  <div id="bodyBar" class="lux"></div>
+  <div id="controlDock" class="lux">
+    <div class="grp">
+      <button id="btnPlay" class="btn on">⏸</button>
+      <button id="btnRev" class="btn">⏪</button>
+      <button id="btnNow" class="btn">الآن</button>
+      <span id="speedChips" class="grp"></span>
+    </div>
+    <div class="grp">
+      <button id="btnStudio" class="btn btn-gold">🎨 استوديو الكواكب</button>
+      <button id="btnQuickRel" class="btn">🕸 الزمكان</button>
+      <button id="btnPlaces" class="btn">📍 الوجهات</button>
+      <button id="btnSettings" class="btn">⚙</button>
+    </div>
+  </div>
+</footer>
+
+<section id="sheetStudio" class="drawer lux hidden">
+  <h3><span>🎨 استوديو أشكال وواقعية الكواكب</span><button class="x" data-close>✕</button></h3>
+  <div class="sec">أنماط فاخرة جاهزة</div>
+  <div class="chips" id="studioPresets">
+    <button data-sp="realistic" class="on-gold">✨ واقعي 8K</button>
+    <button data-sp="cinema">🎬 سينمائي HDR</button>
+    <button data-sp="relief">🏔 تضاريس قصوى</button>
+    <button data-sp="stylized">🪐 تفلطح وحلقات</button>
+  </div>
+  <div class="sec">التحكم بشكل وهندسة الكوكب</div>
+  <label class="opt"><div><span>حجم الكواكب البصري</span><small>تكبير وتصغير مجسمات الكواكب</small></div><span class="rw"><input type="range" id="rngStScale" min="0.5" max="2.2" step="0.05" value="1"><span id="valStScale" class="mono rv">1.00×</span></span></label>
+  <label class="opt"><div><span>التفلطح القطبي (الشكل)</span><small>تشكيل تفلطح القطبين وتمدد الاستواء</small></div><span class="rw"><input type="range" id="rngStOblate" min="-0.12" max="0.32" step="0.01" value="0"><span id="valStOblate" class="mono rv">واقعي</span></span></label>
+  <label class="opt"><div><span>سرعة الدوران البصري</span><small>تدوير تفاعلي لرؤية كل الزوايا</small></div><span class="rw"><input type="range" id="rngStSpin" min="0" max="1.2" step="0.05" value="0"><span id="valStSpin" class="mono rv">0.00</span></span></label>
+  <div class="sec">التفاصيل المجهرية والغلاف الجوي 8K</div>
+  <label class="opt"><div><span>عمق التضاريس والفوهات 8K</span><small>تفاصيل فائقة الحدة عند الاقتراب</small></div><span class="rw"><input type="range" id="rngStRelief" min="0" max="2.5" step="0.05" value="1.45"><span id="valStRelief" class="mono rv">1.45</span></span></label>
+  <label class="opt"><div><span>كثافة الغلاف الجوي</span><small>تشتت رايلي ومي حول الكواكب</small></div><span class="rw"><input type="range" id="rngStAtmo" min="0" max="2.4" step="0.05" value="1.20"><span id="valStAtmo" class="mono rv">1.20</span></span></label>
+  <label class="opt"><div><span>كثافة الغيوم الكوكبية</span><small>السحب المتحركة فوق الأرض</small></div><span class="rw"><input type="range" id="rngStClouds" min="0" max="2.0" step="0.05" value="1.05"><span id="valStClouds" class="mono rv">1.05</span></span></label>
+  <label class="opt"><div><span>سطوع أضواء المدن الليلية</span><small>بريق المدن على الجانب المظلم</small></div><span class="rw"><input type="range" id="rngStNight" min="0" max="2.5" step="0.05" value="1.30"><span id="valStNight" class="mono rv">1.30</span></span></label>
+  <label class="opt"><div><span>حجم ووضوح الحلقات</span><small>حلقات زحل وأورانوس</small></div><span class="rw"><input type="range" id="rngStRings" min="0" max="1.8" step="0.05" value="1.05"><span id="valStRings" class="mono rv">1.05</span></span></label>
+  <label class="opt"><div><span>شدة إضاءة الشمس</span><small>تباين النهار والظلال</small></div><span class="rw"><input type="range" id="rngStSun" min="0.55" max="1.9" step="0.05" value="1.05"><span id="valStSun" class="mono rv">1.05</span></span></label>
+</section>
+
+<section id="sheetPlaces" class="drawer lux hidden">
+  <h3><span>📍 الموقع الجغرافي والوجهات</span><button class="x" data-close>✕</button></h3>
+  <div class="chips" id="placeChips"></div>
+  <div class="sec">الملاحة والرصد</div>
+  <div class="chips"><button id="btnFly" class="on-gold">✈ حلّق للموقع</button><button id="btnLookSky">🔭 شاهد سماء الموقع</button></div>
+  <div id="coords" class="mono">—</div>
+</section>
+
+<section id="sheetBlackHole" class="drawer lux hidden">
+  <h3><span style="color:#ffbe82">🕳 فيزياء الثقب الأسود (Kerr GR)</span><button class="x" data-close>✕</button></h3>
+  <label class="opt"><span>الدوران المغزلي (Spin a*)</span><span class="rw"><input type="range" id="rngBhSpin" min="0" max="0.99" step="0.01" value="0.90"><span id="valBhSpin" class="mono rv">0.90</span></span></label>
+  <label class="opt"><span>حرارة قرص التراكم</span><span class="rw"><input type="range" id="rngBhAccretion" min="0" max="2.4" step="0.05" value="1.25"><span id="valBhAccretion" class="mono rv">1.25</span></span></label>
+  <label class="opt"><span>عدسة الجاذبية وانحناء الضوء</span><span class="rw"><input type="range" id="rngBhLensing" min="0" max="1.6" step="0.02" value="1.00"><span id="valBhLensing" class="mono rv">1.00</span></span></label>
+  <label class="opt"><span>انزياح دوبلر النسبوي</span><input type="checkbox" id="chkBhDoppler" checked></label>
+  <label class="opt"><span>النفثات البلازمية القطبية (Jets)</span><input type="checkbox" id="chkBhJets"></label>
+  <label class="opt"><span>مدار النجم S2 النسبوي</span><input type="checkbox" id="chkBhS2" checked></label>
+</section>
+
+<section id="sheetSettings" class="drawer lux hidden">
+  <h3><span>⚙ الإعدادات والفيزياء والجودة</span><button class="x" data-close>✕</button></h3>
+  <label class="opt"><span>الحركة الحلزونية للمنظومة</span><input type="checkbox" id="chkHelix"></label>
+  <label class="opt"><span>نسيج انحناء الزمكان (أينشتاين)</span><input type="checkbox" id="chkSpacetime"></label>
+  <label class="opt"><span>الغيوم الحية في سماؤك</span><input type="checkbox" id="chkLiveClouds" checked></label>
+  <label class="opt"><span>الغبار الكوني 3D (عمق مجسم)</span><input type="checkbox" id="chkDust" checked></label>
+  <label class="opt"><span>حزام الكويكبات (5,000 جرم)</span><input type="checkbox" id="chkAsteroids" checked></label>
+  <label class="opt"><span>الشفق القطبي (Aurora)</span><input type="checkbox" id="chkAuroras" checked></label>
+  <label class="opt"><span>المدارات والمسارات</span><input type="checkbox" id="chkOrbits" checked></label>
+  <label class="opt"><span>التسميات الفلكية</span><input type="checkbox" id="chkLabels" checked></label>
+  <label class="opt"><span>خطوط الأبراج</span><input type="checkbox" id="chkConst"></label>
+  <label class="opt"><span>مقياس حقيقي 1:1</span><input type="checkbox" id="chkTrue"></label>
+  <label class="opt"><span>توهّج HDR (Bloom)</span><input type="checkbox" id="chkBloom" checked></label>
+  <label class="opt"><span>دقة التصيير</span><select id="selQuality"><option value="ultra">فائقة (8K Ultra)</option><option value="high">عالية (4K)</option><option value="med">متوسطة</option><option value="low">اقتصادية</option></select></label>
+  <label class="opt"><span>التعريض (Exposure)</span><span class="rw"><input type="range" id="rngExposure" min="0.55" max="1.95" step="0.05" value="1.05"><span id="valExposure" class="mono rv">1.05</span></span></label>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script>
+(function(){
+'use strict';
+const A=Astronomy,T=THREE,$=id=>document.getElementById(id),DEG=Math.PI/180,SCENE_AU=120,AU_KM=149597870.7,KM_S=SCENE_AU/AU_KM,C_KM=299792.458,J2000=Date.UTC(2000,0,1,12);
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x)),lerp=(a,b,t)=>a+(b-a)*t,smooth=t=>t*t*(3-2*t),damp=(c,t,r,dt)=>lerp(c,t,1-Math.exp(-r*dt));
+let toastT=0; const toast=(m,ms=2500)=>{const e=$('toast');e.textContent=m;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),ms);};
+const eqj=(v,k=SCENE_AU,o=new T.Vector3())=>o.set(v.x*k,v.z*k,-v.y*k);
+
+const REAL_STARS=[[101.29,-16.72,-1.44,.01,'الشعرى اليمانية'],[95.99,-52.7,-.62,.16,'سهيل'],[213.92,19.18,-.05,1.23,'السماك الرامح'],[219.9,-60.84,-.01,.71,'رجل قنطورس'],[279.23,38.78,.03,0,'النسر الواقع'],[79.17,46,.08,.8,'العيّوق'],[78.63,-8.2,.18,-.03,'رجل الجبّار'],[114.83,5.22,.4,.42,'الشعرى الشامية'],[88.79,7.41,.45,1.85,'منكب الجوزاء'],[297.7,8.87,.76,.22,'النسر الطائر'],[68.98,16.51,.87,1.54,'الدبران'],[201.3,-11.16,.98,-.23,'السماك الأعزل'],[247.35,-26.43,1.06,1.83,'قلب العقرب'],[116.33,28.03,1.16,1,'رأس التوأم'],[344.41,-29.62,1.17,.09,'فم الحوت'],[310.36,45.28,1.25,.09,'ذنب الدجاجة'],[152.09,11.97,1.36,-.11,'قلب الأسد'],[37.95,89.26,1.97,.6,'النجم القطبي'],[165.93,61.75,1.81,1.07,'الدُّبّ'],[206.89,49.31,1.85,-.19,'قائد بنات نعش'],[84.05,-1.2,1.69,-.19,'النظم'],[10.13,56.54,2.24,1.17,'صدر الكرسي']];
+const REAL_CONS=[{ar:'الجبّار',ra:83,dec:3,l:[[[88.8,7.4],[81.3,6.3],[83,-.3],[84.1,-1.2],[85.2,-1.9],[86.9,-9.7],[78.6,-8.2],[83,-.3]],[[88.8,7.4],[85.2,-1.9]]]},{ar:'الدب الأكبر',ra:185,dec:56,l:[[[165.9,61.8],[165.5,56.4],[178.5,53.7],[183.9,57],[165.9,61.8]],[[183.9,57],[193.5,56],[201,54.9],[206.9,49.3]]]},{ar:'ذات الكرسي',ra:15,dec:60,l:[[[28.6,63.7],[21.5,60.2],[14.2,60.7],[10.1,56.5],[2.3,59.1]]]},{ar:'العقرب',ra:252,dec:-31,l:[[[240.1,-22.6],[247.4,-26.4],[252.5,-34.3],[253.6,-42.4],[264.3,-43],[263.4,-37.1]]]},{ar:'الأسد',ra:158,dec:18,l:[[[152.1,12],[151.8,16.8],[155,19.8],[168.5,20.5],[177.3,14.6],[168.6,15.4],[152.1,12]]]},{ar:'الدجاجة',ra:304,dec:40,l:[[[310.4,45.3],[305.6,40.3],[292.7,28]],[[318.2,30.2],[305.6,40.3],[296.2,45.1]]]}];
+
+const BH_PRESETS={
+  sgrA:{ar:'الرامي A* (قلب المجرة)',en:'Sagittarius A* · SMBH',badge:'Sgr A*',mass:'4.3 مليون كتلة شمسية',dist:'27,000 سنة ضوئية',rs:'12.7 مليون كم',spin:.9,acc:1.25,jets:false,s2:true},
+  m87:{ar:'مسيه 87* (العذراء A)',en:'Messier 87* · Supergiant SMBH',badge:'M87*',mass:'6.5 مليار كتلة شمسية',dist:'55 مليون سنة ضوئية',rs:'19.2 مليار كم',spin:.9,acc:1.5,jets:true,s2:false},
+  cygX1:{ar:'الدجاجة X-1',en:'Cygnus X-1 · Stellar BH',badge:'Cyg X-1',mass:'21.2 كتلة شمسية',dist:'7,240 سنة ضوئية',rs:'62.6 كم',spin:.95,acc:1.55,jets:true,s2:false}
+};
+const kerrEv=a=>.5*(1+Math.sqrt(1-clamp(a,0,.998)**2));
+const kerrIsco=a=>{const s=clamp(a,0,.998),z1=1+Math.cbrt(Math.max(1-s*s,1e-6))*(Math.cbrt(1+s)+Math.cbrt(1-s)),z2=Math.sqrt(3*s*s+z1*z1);return .5*(3+z2-Math.sqrt(Math.max(0,(3-z1)*(3+z1+2*z2))));};
+const kerrPh=a=>.5*(2*(1+Math.cos((2/3)*Math.acos(-clamp(a,0,.998)))));
+
+const BODIES={
+  Sun:{ar:'الشمس',en:'Sun',rKm:695700,visR:5.5,color:'#ffd27a',kind:'star',gm:1.3271e11,ob:0},
+  Mercury:{ar:'عطارد',en:'Mercury',rKm:2439.7,visR:.48,color:'#b4afa8',kind:'rock',gm:2.203e4,ob:0,tex:{map:'mercury',bump:'mercuryBump'}},
+  Venus:{ar:'الزهرة',en:'Venus',rKm:6051.8,visR:.92,color:'#f0dba4',kind:'venus',gm:3.249e5,ob:0},
+  Earth:{ar:'الأرض',en:'Earth',rKm:6371,visR:1.25,color:'#4d96ff',kind:'earth',gm:3.986e5,ob:.0034,tex:{map:'earthDay',night:'earthNight',spec:'earthWater',bump:'earthTopo',cloud:'earthCloud'}},
+  Moon:{ar:'القمر',en:'Moon',rKm:1737.4,visR:.36,color:'#d4dce6',kind:'rock',gm:4.905e3,ob:.0012,tex:{map:'moon',bump:'moonBump'}},
+  Mars:{ar:'المريخ',en:'Mars',rKm:3389.5,visR:.7,color:'#e66c40',kind:'rock',gm:4.283e4,ob:.0059,tex:{map:'mars',bump:'marsBump'}},
+  Jupiter:{ar:'المشتري',en:'Jupiter',rKm:71492,visR:2.75,color:'#dfa975',kind:'gas',gm:1.267e8,ob:.0649,tex:{map:'jupiter'}},
+  Saturn:{ar:'زحل',en:'Saturn',rKm:60268,visR:2.4,color:'#ebd294',kind:'gas',gm:3.793e7,ob:.098,tex:{map:'saturn',ringC:'saturnRing',ringA:'saturnRingAlpha'}},
+  Uranus:{ar:'أورانوس',en:'Uranus',rKm:25559,visR:1.45,color:'#8be2f0',kind:'gas',gm:5.794e6,ob:.023,tex:{map:'uranus'}},
+  Neptune:{ar:'نبتون',en:'Neptune',rKm:24764,visR:1.4,color:'#4c80ff',kind:'gas',gm:6.837e6,ob:.017,tex:{map:'neptune'}}
+};
+const ORDER=['Sun','Mercury','Venus','Earth','Moon','Mars','Jupiter','Saturn','Uranus','Neptune'];
+const ODAYS={Mercury:87.97,Venus:224.7,Earth:365.256,Mars:686.98,Jupiter:4332.6,Saturn:10759,Uranus:30688,Neptune:60182};
+const PLACES=[
+  {id:'beirut',ar:'بيروت',lat:33.8938,lon:35.5018,tz:'Asia/Beirut'},{id:'damascus',ar:'دمشق',lat:33.5138,lon:36.2765,tz:'Asia/Damascus'},
+  {id:'jerusalem',ar:'القدس',lat:31.7683,lon:35.2137,tz:'Asia/Jerusalem'},{id:'amman',ar:'عمّان',lat:31.9454,lon:35.9284,tz:'Asia/Amman'},
+  {id:'baghdad',ar:'بغداد',lat:33.3152,lon:44.3661,tz:'Asia/Baghdad'},{id:'mecca',ar:'مكة',lat:21.4225,lon:39.8262,tz:'Asia/Riyadh'},
+  {id:'riyadh',ar:'الرياض',lat:24.7136,lon:46.6753,tz:'Asia/Riyadh'},{id:'dubai',ar:'دبي',lat:25.2048,lon:55.2708,tz:'Asia/Dubai'},
+  {id:'cairo',ar:'القاهرة',lat:30.0444,lon:31.2357,tz:'Africa/Cairo'},{id:'london',ar:'لندن',lat:51.5074,lon:-.1278,tz:'Europe/London'},
+  {id:'paris',ar:'باريس',lat:48.8566,lon:2.3522,tz:'Europe/Paris'},{id:'tokyo',ar:'طوكيو',lat:35.6762,lon:139.6503,tz:'Asia/Tokyo'}
+];
+
+const G1='https://cdn.jsdelivr.net/npm/three-globe@2.25.1/example/img/',P1='https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/',P2='https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/';
+const TEX={earthDay:[G1+'earth-blue-marble.jpg'],earthNight:[G1+'earth-night.jpg'],earthTopo:[G1+'earth-topology.png'],earthWater:[G1+'earth-water.png'],earthCloud:[P1+'earthcloudmaptrans.jpg',P2+'earthcloudmaptrans.jpg'],moon:[P1+'moonmap1k.jpg',P2+'moonmap1k.jpg'],moonBump:[P1+'moonbump1k.jpg',P2+'moonbump1k.jpg'],mercury:[P1+'mercurymap.jpg'],mercuryBump:[P1+'mercurybump.jpg'],mars:[P1+'marsmap1k.jpg',P2+'marsmap1k.jpg'],marsBump:[P1+'marsbump1k.jpg'],jupiter:[P1+'jupitermap.jpg',P2+'jupitermap.jpg'],saturn:[P1+'saturnmap.jpg',P2+'saturnmap.jpg'],saturnRing:[P1+'saturnringcolor.jpg'],saturnRingAlpha:[P1+'saturnringpattern.gif'],uranus:[P1+'uranusmap.jpg'],neptune:[P1+'neptunemap.jpg']};
+const tLoader=new T.TextureLoader(); tLoader.setCrossOrigin('anonymous');
+const tCache={}, tStat={tot:0,ok:0,err:0};
+function loadTex(k,aniso=8,clampS=false){
+  if(tCache[k])return tCache[k]; tStat.tot++;
+  return(tCache[k]=new Promise(res=>{
+    let i=0;const urls=TEX[k]||[];
+    const nx=()=>{if(i>=urls.length){tStat.err++;updChip();return res(null);}
+      tLoader.load(urls[i++],t=>{t.anisotropy=aniso;t.wrapS=clampS?T.ClampToEdgeWrapping:T.RepeatWrapping;t.wrapT=T.ClampToEdgeWrapping;t.minFilter=T.LinearMipmapLinearFilter;tStat.ok++;updChip();res(t);},undefined,nx);};
+    nx();
+  }));
+}
+function updChip(){const c=$('loadChip');if(c)c.textContent=tStat.ok+tStat.err<tStat.tot?`8K ${tStat.ok}/${tStat.tot}`:'8K HDR ✓';}
+
+const _bx=new T.Vector3(),_by=new T.Vector3(),_bz=new T.Vector3(),_bm=new T.Matrix4(),_nn=new T.Vector3(),_pp=new T.Vector3(),_xb=new T.Vector3(),_cr=new T.Vector3();
+function bodyQuat(k,date,out,gast){
+  if(k==='Earth'&&gast!==undefined){const t=A.MakeTime(date),r=A.Rotation_EQD_EQJ(t),p=gast*15*DEG,pv=A.RotateVector(r,new A.Vector(0,0,1,t)),mv=A.RotateVector(r,new A.Vector(Math.cos(p),Math.sin(p),0,t));_pp.set(pv.x,pv.y,pv.z).normalize();_xb.set(mv.x,mv.y,mv.z).normalize();}
+  else{const ax=A.RotationAxis(A.Body[k],date);_pp.set(ax.north.x,ax.north.y,ax.north.z).normalize();_nn.set(-_pp.y,_pp.x,0).normalize();_cr.crossVectors(_pp,_nn);_xb.copy(_nn).multiplyScalar(Math.cos(ax.spin*DEG)).addScaledVector(_cr,Math.sin(ax.spin*DEG));}
+  _bx.set(_xb.x,_xb.z,-_xb.y);_by.set(_pp.x,_pp.z,-_pp.y);_bz.crossVectors(_bx,_by);return out.setFromRotationMatrix(_bm.makeBasis(_bx,_by,_bz));
+}
+const ll2v=(la,lo,o=new T.Vector3())=>o.set(Math.cos(la*DEG)*Math.cos(lo*DEG),Math.sin(la*DEG),-Math.cos(la*DEG)*Math.sin(lo*DEG));
+const v2ll=v=>{const n=v.clone().normalize();return{lat:Math.asin(clamp(n.y,-1,1))/DEG,lon:Math.atan2(-n.z,n.x)/DEG};};
+const fmtKm=k=>k>=1e9?(k/1e9).toFixed(2)+' مليار كم':k>=1e6?(k/1e6).toFixed(2)+' مليون كم':Math.round(k).toLocaleString('en-US')+' كم';
+const fmtTime=(d,tz)=>{try{return new Intl.DateTimeFormat('en-GB',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:tz}).format(d);}catch(e){return d.toISOString().slice(11,16)+'Z';}};
+
+/* ---- 8D BINAURAL HRTF SPATIAL AUDIO ---- */
+const a8={ctx:null,m:null,on:false,pA:null,pB:null,st:null,o1:null,o2:null,o3:null,sub:null,pf:null,nf:null,ng:null,ang:0};
+function chime(f=620,d=.08){if(!a8.on||!a8.ctx)return;const c=a8.ctx,n=c.currentTime,o=c.createOscillator(),g=c.createGain();o.frequency.setValueAtTime(f,n);o.frequency.exponentialRampToValueAtTime(f*1.22,n+d);g.gain.setValueAtTime(1e-4,n);g.gain.linearRampToValueAtTime(.04,n+.01);g.gain.exponentialRampToValueAtTime(1e-4,n+d);o.connect(g);g.connect(a8.m);o.start(n);o.stop(n+d+.02);}
+function toggleAudio8D(){
+  const b=$('btnAudio');
+  if(!a8.ctx){
+    const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return toast('الصوت غير مدعوم');
+    const c=new AC(),m=c.createGain();m.gain.value=1e-4;m.connect(c.destination);
+    const mkP=()=>{if(!c.createPanner)return null;const p=c.createPanner();p.panningModel='HRTF';p.refDistance=1.5;p.connect(m);return p;};
+    const pA=mkP(),pB=mkP(),st=c.createStereoPanner?c.createStereoPanner():null;if(st)st.connect(m);
+    const bA=pA||st||m,bB=pB||st||m;
+    const o1=c.createOscillator(),o2=c.createOscillator(),o3=c.createOscillator(),sub=c.createOscillator();
+    o1.frequency.value=73.4;o2.type='triangle';o2.frequency.value=110;o3.frequency.value=185;sub.frequency.value=36.7;
+    const pf=c.createBiquadFilter();pf.type='lowpass';pf.frequency.value=280;pf.Q.value=2.2;
+    const pg=c.createGain();pg.gain.value=.19;o1.connect(pf);o2.connect(pf);pf.connect(pg);pg.connect(bA);
+    const sg=c.createGain();sg.gain.value=.06;o3.connect(sg);sg.connect(bB);
+    const subG=c.createGain();subG.gain.value=.18;sub.connect(subG);subG.connect(m);
+    const buf=c.createBuffer(1,c.sampleRate*2,c.sampleRate),ch=buf.getChannelData(0);let x0=0,x1=0;
+    for(let i=0;i<ch.length;i++){const w=Math.random()*2-1;x0=.995*x0+w*.05;x1=.97*x1+w*.1;ch[i]=(x0+x1)*.16;}
+    const ns=c.createBufferSource();ns.buffer=buf;ns.loop=true;
+    const nf=c.createBiquadFilter();nf.type='bandpass';nf.frequency.value=300;nf.Q.value=2.2;
+    const ng=c.createGain();ng.gain.value=.13;ns.connect(nf);nf.connect(ng);ng.connect(bB);
+    o1.start();o2.start();o3.start();sub.start();ns.start();
+    Object.assign(a8,{ctx:c,m,pA,pB,st,o1,o2,o3,sub,pf,nf,ng});
+  }
+  a8.on=!a8.on;if(a8.ctx.state==='suspended')a8.ctx.resume();
+  const n=a8.ctx.currentTime;a8.m.gain.cancelScheduledValues(n);a8.m.gain.setTargetAtTime(a8.on?.38:1e-4,n,.35);
+  b.classList.toggle('on-gold',a8.on);b.innerHTML=a8.on?'🔊 <span class="hide-sm">8D نشط</span>':'🎧 <span class="hide-sm">صوت 8D</span>';
+  if(a8.on){chime(528,.14);toast('🎧 الصوت المكاني 8D (HRTF) نشط — يُنصح بالسماعات');}
+}
+function updAudio8D(dt,mode,r){
+  if(!a8.on||!a8.ctx)return; const n=a8.ctx.currentTime;
+  a8.ang+=dt*(mode==='blackhole'?.6+clamp(8/Math.max(r,1.05),0,1.8):.35);
+  const bias=mode==='earth'?eV.yaw*DEG:orb.th, a1=a8.ang+bias*.45, a2=-a8.ang*.72+bias*.65+1.4;
+  if(a8.pA&&a8.pA.positionX){a8.pA.positionX.setTargetAtTime(Math.cos(a1)*3.2,n,.06);a8.pA.positionY.setTargetAtTime(Math.sin(a1*.6)*1.4,n,.06);a8.pA.positionZ.setTargetAtTime(Math.sin(a1)*3.2,n,.06);}
+  if(a8.pB&&a8.pB.positionX){a8.pB.positionX.setTargetAtTime(Math.cos(a2)*3.6,n,.06);a8.pB.positionY.setTargetAtTime(Math.cos(a2*.8)*1.8,n,.06);a8.pB.positionZ.setTargetAtTime(Math.sin(a2)*3.6,n,.06);}
+  else if(a8.st)a8.st.pan.setTargetAtTime(Math.sin(a1)*.85,n,.06);
+  if(mode==='blackhole'){const p=clamp(15/Math.max(r,1.02),.35,5.2);a8.o1.frequency.setTargetAtTime(46+p*15,n,.14);a8.o2.frequency.setTargetAtTime(69+p*26,n,.14);a8.sub.frequency.setTargetAtTime(29+p*7,n,.14);a8.nf.frequency.setTargetAtTime(190+p*230,n,.14);a8.ng.gain.setTargetAtTime(clamp(.11+p*.07,.1,.4),n,.14);}
+  else{a8.o1.frequency.setTargetAtTime(73.4,n,.3);a8.o2.frequency.setTargetAtTime(110,n,.3);a8.sub.frequency.setTargetAtTime(36.7,n,.3);a8.nf.frequency.setTargetAtTime(mode==='earth'?480:280,n,.3);a8.ng.gain.setTargetAtTime(.11,n,.3);}
+}
+
+/* ---- HDR + BLOOM + ACES + SHARPEN PIPELINE ---- */
+const canvas=$('cosmosCanvas'), renderer=new T.WebGLRenderer({canvas,antialias:false,alpha:false,stencil:false,powerPreference:'high-performance'});
+renderer.autoClear=false;renderer.outputEncoding=T.LinearEncoding;renderer.toneMapping=T.NoToneMapping;renderer.setClearColor(0x000000,1);
+const caps=renderer.capabilities, MAX_ANISO=Math.min(caps.getMaxAnisotropy(),16);
+const HAS_HDR=caps.isWebGL2?!!(renderer.extensions.get('EXT_color_buffer_float')||renderer.extensions.get('EXT_color_buffer_half_float')):!!(renderer.extensions.get('OES_texture_half_float')&&renderer.extensions.get('OES_texture_half_float_linear')&&renderer.extensions.get('EXT_color_buffer_half_float'));
+if(!caps.isWebGL2)renderer.extensions.get('OES_standard_derivatives');
+const QUAL={ultra:{pr:2.5,bl:1,div:2,st:1.05,bh:112},high:{pr:2,bl:1,div:2,st:1,bh:92},med:{pr:1.4,bl:1,div:4,st:.85,bh:70},low:{pr:1,bl:0,div:4,st:.65,bh:48}};
+const fx={q:'ultra',exp:1.05,bl:.58,blOn:true};
+const fsGeo=new T.BufferGeometry();fsGeo.setAttribute('position',new T.BufferAttribute(new Float32Array([-1,-1,0,3,-1,0,-1,3,0]),3));
+const fsV=`varying vec2 vUv;void main(){vUv=position.xy*.5+.5;gl_Position=vec4(position.xy,0.,1.);}`;
+const fsM=new T.Mesh(fsGeo,new T.MeshBasicMaterial());fsM.frustumCulled=false;
+const fsS=new T.Scene();fsS.add(fsM);const fsC=new T.OrthographicCamera(-1,1,1,-1,0,1);
+const mPre=new T.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:fsV,uniforms:{tS:{value:null},uT:{value:new T.Vector2()}},fragmentShader:`uniform sampler2D tS;uniform vec2 uT;varying vec2 vUv;void main(){vec3 c=(texture2D(tS,vUv+uT*vec2(-.5,-.5)).rgb+texture2D(tS,vUv+uT*vec2(.5,-.5)).rgb+texture2D(tS,vUv+uT*vec2(-.5,.5)).rgb+texture2D(tS,vUv+uT*vec2(.5,.5)).rgb)*.25;c=clamp(c,vec3(0.),vec3(60.));float br=max(c.r,max(c.g,c.b)),sf=clamp(br-.36,0.,1.2);sf=sf*sf/2.4;gl_FragColor=vec4(c*(max(sf,br-.96)/max(br,1e-5)),1.);}`});
+const mDn=new T.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:fsV,uniforms:{tS:{value:null},uT:{value:new T.Vector2()}},fragmentShader:`uniform sampler2D tS;uniform vec2 uT;varying vec2 vUv;void main(){gl_FragColor=vec4((texture2D(tS,vUv+uT*vec2(-1.,-1.)).rgb+texture2D(tS,vUv+uT*vec2(1.,-1.)).rgb+texture2D(tS,vUv+uT*vec2(-1.,1.)).rgb+texture2D(tS,vUv+uT*vec2(1.,1.)).rgb)*.25,1.);}`});
+const mUp=new T.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:fsV,uniforms:{tD:{value:null},tU:{value:null},uT:{value:new T.Vector2()}},fragmentShader:`uniform sampler2D tD,tU;uniform vec2 uT;varying vec2 vUv;void main(){vec2 d=uT;vec3 s=texture2D(tU,vUv+d*vec2(-1.,-1.)).rgb+2.*texture2D(tU,vUv+d*vec2(0.,-1.)).rgb+texture2D(tU,vUv+d*vec2(1.,-1.)).rgb+2.*texture2D(tU,vUv+d*vec2(-1.,0.)).rgb+4.*texture2D(tU,vUv).rgb+2.*texture2D(tU,vUv+d*vec2(1.,0.)).rgb+texture2D(tU,vUv+d*vec2(-1.,1.)).rgb+2.*texture2D(tU,vUv+d*vec2(0.,1.)).rgb+texture2D(tU,vUv+d*vec2(1.,1.)).rgb;gl_FragColor=vec4(texture2D(tD,vUv).rgb+s/16.*.9,1.);}`});
+const mCmp=new T.ShaderMaterial({depthTest:false,depthWrite:false,vertexShader:fsV,uniforms:{tS:{value:null},tB:{value:null},uT:{value:new T.Vector2()},uBl:{value:.58},uEx:{value:1.05},uTm:{value:0}},fragmentShader:`uniform sampler2D tS,tB;uniform vec2 uT;uniform float uBl,uEx,uTm;varying vec2 vUv;vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}void main(){vec2 q=vUv-.5;float ca=dot(q,q)*.0024;vec3 sc=vec3(texture2D(tS,vUv+q*ca).r,texture2D(tS,vUv).g,texture2D(tS,vUv-q*ca).b);vec3 bl=.25*(texture2D(tS,vUv+vec2(uT.x,0.)).rgb+texture2D(tS,vUv-vec2(uT.x,0.)).rgb+texture2D(tS,vUv+vec2(0.,uT.y)).rgb+texture2D(tS,vUv-vec2(0.,uT.y)).rgb);sc=max(sc+(sc-bl)*.22,vec3(0.));vec3 col=aces((sc+texture2D(tB,vUv).rgb*uBl)*uEx);col=mix(vec3(dot(col,vec3(.2126,.7152,.0722))),col,1.1)*(1.-.3*dot(q,q)*1.4);col=pow(clamp(col,0.,1.),vec3(1./2.2))+(fract(sin(dot(gl_FragCoord.xy+fract(uTm)*91.7,vec2(12.9898,78.233)))*43758.5453)-.5)/255.;gl_FragColor=vec4(col,1.);}`});
+let sRT=null,mD=[],mU=[];const BL=4,rtO=h=>({type:h?T.HalfFloatType:T.UnsignedByteType,format:T.RGBAFormat,minFilter:T.LinearFilter,magFilter:T.LinearFilter,generateMipmaps:false});
+function buildRT(){
+  if(sRT)sRT.dispose();mD.forEach(r=>r&&r.dispose());mU.forEach(r=>r&&r.dispose());mD=[];mU=[];
+  const q=QUAL[fx.q]||QUAL.high;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,q.pr));renderer.setSize(window.innerWidth,window.innerHeight,false);
+  const sz=renderer.getDrawingBufferSize(new T.Vector2()),w=Math.max(2,sz.x|0),h=Math.max(2,sz.y|0);let hdr=HAS_HDR;
+  const mk=isH=>new T.WebGLRenderTarget(w,h,Object.assign(rtO(isH),{depthBuffer:true,stencilBuffer:false}));sRT=mk(hdr);
+  if(hdr){renderer.setRenderTarget(sRT);if(renderer.getContext().checkFramebufferStatus(renderer.getContext().FRAMEBUFFER)!==renderer.getContext().FRAMEBUFFER_COMPLETE){sRT.dispose();hdr=false;sRT=mk(false);}renderer.setRenderTarget(null);}
+  let mw=Math.max(2,(w/q.div)|0),mh=Math.max(2,(h/q.div)|0);
+  for(let i=0;i<BL;i++){const o=rtO(hdr);o.depthBuffer=false;mD.push(new T.WebGLRenderTarget(mw,mh,o));mU.push(i<BL-1?new T.WebGLRenderTarget(mw,mh,o):null);mw=Math.max(2,(mw/2)|0);mh=Math.max(2,(mh/2)|0);}
+}
+const blit=(m,t)=>{fsM.material=m;renderer.setRenderTarget(t);renderer.render(fsS,fsC);};
+let _tU=0,_lP=[];
+function renderFrame(passes){
+  _lP=passes;renderer.setRenderTarget(sRT);renderer.clear(true,true,false);
+  for(const p of passes){if(p.cd!==false)renderer.clearDepth();renderer.render(p.s,p.c);}
+  const q=QUAL[fx.q]||QUAL.high,doB=fx.blOn&&q.bl;
+  if(doB){
+    mPre.uniforms.tS.value=sRT.texture;mPre.uniforms.uT.value.set(1/sRT.width,1/sRT.height);blit(mPre,mD[0]);
+    for(let i=1;i<BL;i++){mDn.uniforms.tS.value=mD[i-1].texture;mDn.uniforms.uT.value.set(1/mD[i-1].width,1/mD[i-1].height);blit(mDn,mD[i]);}
+    let up=mD[BL-1];for(let i=BL-2;i>=0;i--){mUp.uniforms.tD.value=mD[i].texture;mUp.uniforms.tU.value=up.texture;mUp.uniforms.uT.value.set(1/up.width,1/up.height);blit(mUp,mU[i]);up=mU[i];}
+    mCmp.uniforms.tB.value=up.texture;
+  }else mCmp.uniforms.tB.value=sRT.texture;
+  mCmp.uniforms.tS.value=sRT.texture;mCmp.uniforms.uT.value.set(1/sRT.width,1/sRT.height);mCmp.uniforms.uBl.value=doB?fx.bl:0;mCmp.uniforms.uEx.value=fx.exp;mCmp.uniforms.uTm.value=(_tU+=.017);blit(mCmp,null);
+}
+
+/* ---- 8K MICRO-RELIEF PLANET SHADERS ---- */
+const U={uTime:{value:0},uAur:{value:1},uRel:{value:1.45},uNB:{value:1.3},uAB:{value:1.2},uCB:{value:1.05},uRB:{value:1.05},uSB:{value:1.05}};
+const BLANK=new T.DataTexture(new Uint8Array([255,255,255,255]),1,1,T.RGBAFormat);BLANK.needsUpdate=true;
+const NOISE=`float h31(vec3 p){p=fract(p*.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float n3(vec3 p){vec3 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm(vec3 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n3(p);p=p*2.03+1.7;a*=.5;}return v;}
+float fbm2(vec3 p){float v=0.,a=.5;for(int i=0;i<3;i++){v+=a*n3(p);p=p*2.03+1.7;a*=.5;}return v;}
+float craters(vec3 p){vec3 i=floor(p),f=fract(p);float dm=8.;for(int z=-1;z<=1;z++)for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){vec3 g=vec3(float(x),float(y),float(z)),c=i+g,r=g+vec3(h31(c),h31(c+17.3),h31(c+43.1))-f;dm=min(dm,dot(r,r));}float d=sqrt(dm);return smoothstep(0.,.52,d)*.65+exp(-pow((d-.5)/.09,2.))*.38;}
+vec3 toLin(vec3 c){return pow(c,vec3(2.2));}`;
+
+const P_VS=`varying vec2 vUv;varying vec3 vP,vN;void main(){vUv=uv;vP=position;vN=normal;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
+const P_FS=`uniform sampler2D uM,uB,uS,uN,uC,uRA;uniform float uMm,uBm,uSm,uNm,uCm,uBs,uCd,uIrr,uTime,uLom,uLimb,uWr,uDet,uW,uAur,uRel,uNB,uSB,uCB;uniform vec3 uSun,uCam,uCA,uCB2;uniform vec2 uRng;varying vec2 vUv;varying vec3 vP,vN;${NOISE}
+void tB(vec3 N,out vec3 e,out vec3 n){e=cross(vec3(0.,1.,0.),N);e=length(e)>1e-4?normalize(e):vec3(1.,0.,0.);n=cross(N,e);}
+vec3 bN(vec3 N,vec2 uv,float s){float e=1./900.,hu=texture2D(uB,uv+vec2(e,0.)).r-texture2D(uB,uv-vec2(e,0.)).r,hv=texture2D(uB,uv+vec2(0.,e)).r-texture2D(uB,uv-vec2(0.,e)).r;vec3 ea,no;tB(N,ea,no);return normalize(N-s*((hu/(2.*e))/(6.283*max(sqrt(max(1.-N.y*N.y,0.)),.06))*ea+(hv/(2.*e))/3.1416*no));}
+vec3 mN(vec3 N,vec3 P,float st,bool cr){vec3 ea,no;tB(N,ea,no);float e=.0022,h0,hx,hy;if(cr){h0=fbm2(P*68.)*.55+craters(P*22.)*.45+fbm2(P*180.)*.22;hx=fbm2((P+ea*e)*68.)*.55+craters((P+ea*e)*22.)*.45+fbm2((P+ea*e)*180.)*.22;hy=fbm2((P+no*e)*68.)*.55+craters((P+no*e)*22.)*.45+fbm2((P+no*e)*180.)*.22;}else{h0=fbm2(P*85.)*.6+fbm2(P*210.)*.4;hx=fbm2((P+ea*e)*85.)*.6+fbm2((P+ea*e)*210.)*.4;hy=fbm2((P+no*e)*85.)*.6+fbm2((P+no*e)*210.)*.4;}return normalize(N-((hx-h0)/e*ea+(hy-h0)/e*no)*st*.0048);}
+void main(){
+  vec3 Ng=normalize(vN),P=Ng,V=normalize(uCam-vP),L=normalize(uSun);float nlg=dot(Ng,L),nv0=max(dot(Ng,V),0.),sh=1.;
+  if(uRng.y>0.&&abs(L.y)>1e-4){float t=-P.y/L.y;if(t>0.){float r=length((P+L*t).xz);if(r>=uRng.x&&r<=uRng.y)sh=1.-texture2D(uRA,vec2((r-uRng.x)/(uRng.y-uRng.x),.5)).r*.9;}}
+  vec3 col=vec3(0.);
+#if defined(EARTH)
+  float el=fbm(P*2.3+3.1),lp=smoothstep(.5,.53,el);
+  vec3 pD=mix(vec3(.01,.06,.2)+.05*el,mix(vec3(.07,.18,.05),vec3(.5,.42,.28),smoothstep(.55,.75,el)),lp);pD=mix(pD,vec3(.85),smoothstep(.8,.9,abs(P.y)));
+  vec3 alb=mix(pD,toLin(texture2D(uM,vUv).rgb),uMm);float wat=mix(1.-lp,texture2D(uS,vUv).r,uSm),lm=1.-wat;
+  if(uDet>.02)alb*=1.+((fbm2(P*165.)*.65+fbm2(P*380.)*.35)-.5)*.35*uDet*lm*uRel;
+  float cl=uCm>0.&&uCB>.01?clamp(texture2D(uC,vUv+vec2(uCd,0.)).r*uCm*uCB,0.,1.):0.;
+  vec3 N=Ng;if(uBm>0.)N=normalize(mix(Ng,bN(Ng,vUv,uBs*uRel*(1.-wat*.9)),uBm));if(uDet>.02&&uRel>.05)N=normalize(mix(N,mN(N,P,uRel*uDet*(.15+.85*lm),false),.72));
+  float tw=exp(-pow((nlg+.025)/.115,2.)),ndh=max(dot(N,normalize(L+V)),0.),wR=fbm2(P*160.+vec3(uTime*.05,0.,-uTime*.04));
+  vec3 lit=alb*max(dot(N,L),0.)*smoothstep(-.03,.11,nlg)*sh*1.18+mix(alb,vec3(1.),.35)*vec3(1.,.38,.14)*tw*.26*sh;
+  lit+=mix(vec3(1.,.94,.82),vec3(1.,.58,.28),tw)*(pow(ndh,760.)*3.8+pow(ndh,58.)*(.24+.14*wR))*wat*mix(.28,1.,pow(1.-nv0,3.6))*smoothstep(-.01,.12,nlg)*sh*(1.-cl*.92);
+  lit*=1.-.5*cl;float nf=smoothstep(.05,-.18,nlg);vec3 city=toLin(texture2D(uN,vUv).rgb)*nf*(1.-cl*.72)*2.7*uNm*uNB,aur=vec3(0.);
+  if(uAur>.5&&nf>.01){float ml=abs(dot(P,normalize(vec3(.14,.986,-.085)))),ai=exp(-pow((ml-.928)/.024,2.))*smoothstep(.35,.78,fbm(vec3(P.x*16.+uTime*.07,P.y*5.,P.z*16.-uTime*.05)))*nf;aur=mix(vec3(.08,.98,.48),vec3(.6,.18,.92),smoothstep(.925,.955,ml))*ai*1.6;}
+  col=lit+city+aur+alb*vec3(.003,.005,.009);
+#elif defined(ROCK)
+  vec3 alb=mix(mix(uCA,uCB2,smoothstep(.3,.72,fbm(P*3.5)))*(.75+.45*fbm(P*14.)),toLin(texture2D(uM,vUv).rgb),uMm);
+  if(uDet>.01)alb*=1.+(craters(P*22.)*.45+fbm2(P*85.)*.35+fbm2(P*260.)*.2-.52)*.68*uDet*clamp(uRel,.3,2.2);
+  vec3 N=Ng;if(uBm>0.)N=normalize(mix(Ng,bN(Ng,vUv,uBs*uRel*(1.+.55*uDet)),uBm));if(uDet>.02&&uRel>.05)N=normalize(mix(N,mN(N,P,uRel*uDet*1.32,true),.78));
+  float nl=max(dot(N,L),0.),nv=max(dot(N,V),.02);col=alb*mix(nl,nl/(nl+nv)*1.82,uLom)*smoothstep(-.015,.075,nlg)*sh*1.08+alb*.0022;
+#elif defined(GAS)
+  vec2 uv=vUv;float lat=(uv.y-.5)*3.1416;uv.x+=uTime*.0003*(sin(lat*6.+.6)*.6+sin(lat*14.)*.4);uv+=(fbm(P*5.5+vec3(0.,uTime*.012,0.))-.5)*vec2(.012,.004)*uW;
+  vec3 alb=mix(mix(uCA,uCB2,sin((P.y+(fbm(P*6.5)-.5)*.14)*26.)*.5+.5),toLin(texture2D(uM,uv).rgb),uMm);
+  float ed=fbm(P*34.+vec3(0.,uTime*.02,uTime*.01));alb*=.89+.24*ed*uW;
+  if(uDet>.02)alb*=1.+(fbm2(P*65.+vec3(ed*3.2,-ed*1.8,uTime*.03))-.5)*.28*uDet*uW*clamp(uRel,.3,2.);
+  float mu=max(dot(Ng,V),0.);col=alb*max((nlg+uWr)/(1.+uWr),0.)*sh*mix(1.,pow(mu,.44),uLimb)*1.15+mix(uCB2,vec3(.85,.92,1.),.4)*pow(1.-mu,3.8)*max(nlg+.2,0.)*.16*sh+alb*.0028;
+#elif defined(VENUS)
+  vec3 q=P*2.2+vec3(uTime*.014,0.,0.);float w=fbm(q+1.8*fbm(q*1.6+vec3(0.,uTime*.02,0.)));
+  vec3 alb=mix(vec3(.73,.6,.4),vec3(.96,.87,.65),smoothstep(.24,.78,w))*(.93+.14*fbm(P*28.+uTime*.012));
+  col=alb*pow(max((nlg+.3)/1.3,0.),1.32)*(.62+.32*pow(1.-max(dot(Ng,V),0.),1.6))*.64+alb*.003;
+#endif
+  gl_FragColor=vec4(col*uIrr*uSB,1.);
+}`;
+
+function mkPMat(kind,c={}){
+  const u={uM:{value:BLANK},uB:{value:BLANK},uS:{value:BLANK},uN:{value:BLANK},uC:{value:BLANK},uRA:{value:BLANK},uMm:{value:0},uBm:{value:0},uSm:{value:0},uNm:{value:0},uCm:{value:0},uBs:{value:c.bs||.013},uCd:{value:0},uSun:{value:new T.Vector3(1,0,0)},uCam:{value:new T.Vector3(0,0,10)},uCA:{value:new T.Color(c.cA||'#808080')},uCB2:{value:new T.Color(c.cB||'#c0c0c0')},uIrr:{value:1},uTime:U.uTime,uLom:{value:c.lom||0},uLimb:{value:c.limb??.5},uWr:{value:c.wr||.04},uDet:{value:0},uW:{value:c.w??1},uAur:U.uAur,uRel:U.uRel,uNB:U.uNB,uSB:U.uSB,uCB:U.uCB,uRng:{value:new T.Vector2()}};
+  const m=new T.ShaderMaterial({uniforms:u,defines:{[kind.toUpperCase()]:1},vertexShader:P_VS,fragmentShader:P_FS});m.userData.u=u;return m;
+}
+function mkAtmo(p){
+  const u={uSun:{value:new T.Vector3(1,0,0)},uCam:{value:new T.Vector3(0,0,10)},uSh:{value:p.sh},uBR:{value:new T.Vector3(...p.bR)},uI:{value:p.sI},uIrr:{value:1},uAB:U.uAB};
+  const m=new T.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,blending:T.AdditiveBlending,vertexShader:`uniform float uSh;varying vec3 vP;void main(){vP=position*uSh;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`uniform vec3 uSun,uCam,uBR;uniform float uSh,uI,uIrr,uAB;varying vec3 vP;
+      vec2 rs(vec3 ro,vec3 rd,float r){float b=dot(ro,rd),d=b*b-(dot(ro,ro)-r*r);if(d<0.)return vec2(1e9,-1e9);d=sqrt(d);return vec2(-b-d,-b+d);}
+      void main(){if(uAB<=.01)discard;vec3 ro=uCam,rd=normalize(vP-uCam),L=normalize(uSun);vec2 ta=rs(ro,rd,uSh);if(ta.y<0.)discard;float t0=max(ta.x,0.),t1=ta.y;vec2 tp=rs(ro,rd,1.);if(tp.x>0.&&tp.x<tp.y)t1=min(t1,tp.x);if(t1<=t0)discard;
+        float ds=(t1-t0)/8.,mu=dot(rd,L),phR=.75*(1.+mu*mu),oR=0.;vec3 sR=vec3(0.);
+        for(int i=0;i<8;i++){vec3 p=ro+rd*(t0+(float(i)+.5)*ds);float dR=exp(-max(length(p)-1.,0.)/.013)*ds;oR+=dR;vec2 tl=rs(p,L,uSh),tpl=rs(p,L,1.);float sh=(tpl.x>0.&&tpl.x<tpl.y)?0.:1.,lR=exp(-max(length(p+L*tl.y*.5)-1.,0.)/.013)*tl.y;sR+=dR*exp(-uBR*(oR+lR))*sh;}
+        gl_FragColor=vec4(uI*sR*uBR*phR*uIrr*uAB,1.);}`});
+  m.userData.u=u;return m;
+}
+function mkCloud(){
+  const u={uC:{value:BLANK},uSun:{value:new T.Vector3(1,0,0)},uCam:{value:new T.Vector3(0,0,10)},uM:{value:0},uIrr:{value:1},uDr:{value:0},uTm:U.uTime,uA:{value:1},uCB:U.uCB};
+  const m=new T.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,vertexShader:P_VS,fragmentShader:`uniform sampler2D uC;uniform vec3 uSun,uCam;uniform float uM,uIrr,uDr,uTm,uA,uCB;varying vec2 vUv;varying vec3 vP,vN;${NOISE}
+    void main(){if(uCB<=.01)discard;vec3 N=normalize(vN),L=normalize(uSun),V=normalize(uCam-vP);float c=texture2D(uC,vUv+vec2(uDr,0.)).r,d=fbm2(N*56.+vec3(uTm*.012,0.,0.));c=clamp((c*(.8+.45*d)+(d-.5)*.11*c)*uM*uCB,0.,1.);float nl=dot(N,L),lit=smoothstep(-.1,.22,nl)*(max(nl,0.)*1.12+pow(max(dot(-V,L),0.),6.)*.36)+.24*exp(-pow((nl+.02)/.12,2.));gl_FragColor=vec4(vec3(.98,.99,1.)*mix(vec3(1.),vec3(1.,.72,.52),exp(-pow((nl+.02)/.17,2.)))*lit*uIrr,clamp(c*c*1.12,0.,1.)*.88*uA);}`});
+  m.userData.u=u;return m;
+}
+function mkRing(iR,oR,du=false){
+  const u={uC:{value:BLANK},uA:{value:BLANK},uM:{value:0},uSun:{value:new T.Vector3(1,0,0)},uCam:{value:new T.Vector3(0,0,10)},uR:{value:new T.Vector2(iR,oR)},uIrr:{value:1},uD:{value:du?1:0},uRB:U.uRB};
+  const m=new T.ShaderMaterial({uniforms:u,transparent:true,depthWrite:false,side:T.DoubleSide,vertexShader:`varying vec3 vL;void main(){vL=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`uniform sampler2D uC,uA;uniform float uM,uIrr,uD,uRB;uniform vec3 uSun,uCam;uniform vec2 uR;varying vec3 vL;
+      void main(){if(uRB<=.01)discard;float u=(length(vL.xz)-uR.x)/(uR.y-uR.x);if(u<0.||u>1.)discard;vec3 L=normalize(uSun),V=normalize(uCam-vL);float s=dot(vL,L),sh=s<0.?smoothstep(.982,1.018,length(vL-L*s)):1.,fwd=pow(max(dot(-V,L),0.),5.);
+        if(uD>.5){float e=exp(-pow((u-.88)/.03,2.))*.55+exp(-pow((u-.55)/.02,2.))*.28;gl_FragColor=vec4(vec3(.56,.72,.82)*(.55+1.4*fwd)*sh*uIrr,clamp(e*.45*uRB,0.,.75));return;}
+        float mi=.86+.14*sin(u*500.)*sin(u*140.),pr=(.55+.22*sin(u*95.)+.12*sin(u*210.))*mi,cas=1.-smoothstep(.022,0.,abs(u-.64)-.032);
+        vec3 c=mix(vec3(.74,.64,.49)*pr,pow(texture2D(uC,vec2(u,.5)).rgb,vec3(2.2))*mi,uM);float a=mix(pr*.85*smoothstep(0.,.05,u)*smoothstep(1.,.95,u)*cas,texture2D(uA,vec2(u,.5)).r,uM);
+        gl_FragColor=vec4(c*mix(.14+.78*(1.-a)*(1.-a),1.,step(0.,V.y*L.y))*(1.+fwd*1.4)*sh*2.15*uIrr,clamp(a*uRB,0.,1.)*.96);}`});
+  m.userData.u=u;return m;
+}
+const sunMat=new T.ShaderMaterial({uniforms:{uTm:U.uTime},vertexShader:`varying vec3 vP,vN,vV;void main(){vP=position;vec4 mv=modelViewMatrix*vec4(position,1.);vN=normalize(normalMatrix*normal);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform float uTm;varying vec3 vP,vN,vV;${NOISE}void main(){vec3 p=normalize(vP);float mu=clamp(dot(normalize(vN),normalize(vV)),0.,1.),g1=fbm(p*16.+vec3(0.,uTm*.03,uTm*.05)),g2=fbm(p*55.+vec3(uTm*.14,-uTm*.08,0.)),sp=fbm(p*3.4+11.+uTm*.003)*smoothstep(.95,.22,abs(p.y)*1.35);vec3 b=vec3(1.,.74,.4)*(.72+.56*g1+.36*g2);b=mix(b,b*vec3(.18,.1,.06),smoothstep(.65,.76,sp)*.85);gl_FragColor=vec4((max(b*(vec3(1.)-vec3(.52,.76,.94)*(1.-pow(mu,.65))),0.)+vec3(1.2,.25,.12)*pow(1.-mu,6.)*.65)*1.1,1.);}`});
+const corMat=new T.ShaderMaterial({uniforms:{uTm:U.uTime},transparent:true,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide,vertexShader:`varying vec2 vP;void main(){vP=position.xy;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`uniform float uTm;varying vec2 vP;${NOISE}void main(){float rr=length(vP)*5.2;if(rr<.96)discard;float a=atan(vP.y,vP.x),st=fbm(vec3(cos(a)*3.2,sin(a)*3.2,uTm*.02+rr*1.3)),an=exp(-abs(vP.y)*36.)*exp(-abs(vP.x)*2.4)*.4;float g=(exp(-(rr-1.)*1.45)*(.55+st*1.4)*.85+exp(-(rr-1.)*7.5)*1.6+.11/(rr*rr))*smoothstep(5.2,3.5,rr);gl_FragColor=vec4(mix(vec3(1.,.52,.16),vec3(1.,.88,.65),exp(-(rr-1.)*2.2))*g*.55+vec3(.75,.9,1.)*an,1.);}`});
+function mkTrail(col,cl=true){return new T.ShaderMaterial({uniforms:{uH:{value:0},uC:{value:new T.Color(col)},uCl:{value:cl?1:0}},transparent:true,depthWrite:false,blending:T.AdditiveBlending,vertexShader:`attribute float aP;uniform float uH,uCl;varying float vA;void main(){vA=uCl>.5?(pow(1.-fract(uH-aP+1e-5),2.4)*.88+.1):(pow(1.-clamp(uH-aP,0.,1.),2.2)*smoothstep(0.,.07,aP));gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentShader:`uniform vec3 uC;varying float vA;void main(){gl_FragColor=vec4(uC*vA*1.25,1.);}`});}
+const fades=[];const fadeTo=(u,t=1,d=1)=>fades.push({u,t,r:1/d});
+
+/* ---- KERR BLACK HOLE GEODESIC RAY-MARCHER ---- */
+const bhS=new T.Scene(),bhOS=new T.Scene();
+const bhU={uTm:U.uTime,uCP:{value:new T.Vector3(0,2.8,14)},uCF:{value:new T.Vector3(0,-.2,-.98)},uCR:{value:new T.Vector3(1,0,0)},uCU:{value:new T.Vector3(0,.98,-.2)},uTF:{value:Math.tan(26*DEG)},uAs:{value:1},uSp:{value:.9},uEv:{value:kerrEv(.9)},uIs:{value:kerrIsco(.9)},uAc:{value:1.25},uLn:{value:1},uDp:{value:1},uJt:{value:0},uS2:{value:1},uS2P:{value:new T.Vector3(8,1.5,-5)},uMS:{value:112}};
+const bhM=new T.ShaderMaterial({uniforms:bhU,depthTest:false,depthWrite:false,vertexShader:fsV,fragmentShader:`
+  uniform float uTm,uTF,uAs,uSp,uEv,uIs,uAc,uLn,uDp,uJt,uS2;uniform vec3 uCP,uCF,uCR,uCU,uS2P;uniform int uMS;varying vec2 vUv;${NOISE}
+  vec3 bb(float t){vec3 c=mix(vec3(.85,.11,.02),vec3(1.,.56,.14),smoothstep(.18,.72,t));c=mix(c,vec3(1.,.93,.8),smoothstep(.72,1.25,t));return mix(c,vec3(.66,.86,1.),smoothstep(1.25,2.05,t));}
+  vec3 bg(vec3 rd){vec3 d=normalize(rd),g=normalize(vec3(dot(vec3(-.055,-.873,-.484),d),dot(vec3(.494,-.445,.747),d),dot(vec3(-.868,-.198,.456),d)));float b=asin(clamp(g.z,-1.,1.)),l=atan(g.y,g.x),blg=exp(-(l*l)/.22-(b*b)/.05);vec3 mw=mix(vec3(.55,.72,1.),vec3(1.,.78,.5),clamp(blg*1.4,0.,1.))*(.044*exp(-abs(b)/.16)+.12*blg)*(1.-.75*smoothstep(.46,.68,fbm2(g*9.5+3.1))*exp(-abs(b)/.08)),st=vec3(0.);for(int i=0;i<2;i++){vec3 p=d*(i==0?78.:165.),c=floor(p),fr=fract(p)-.5;float h=h31(c+float(i)*31.7);if(h>.78){float dst=length(fr-(vec3(h31(c+7.1),h31(c+13.3),h31(c+29.9))-.5)*.55),sh=i==0?18.:24.;st+=mix(vec3(1.,.76,.55),vec3(.7,.86,1.),h31(c+53.))*exp(-dst*dst*sh*sh)*pow((h-.78)/.22,2.6)*(i==0?3.8:1.9);}}return mw+st;}
+  void dsk(vec3 hit,vec3 rv,out vec3 em,out float al){float hr=length(hit.xz),inR=uIs*.94;if(hr<=inR||hr>=16.5){em=vec3(0.);al=0.;return;}float rm=smoothstep(inR,uIs*1.16,hr)*exp(-max(hr-uIs*1.25,0.)*.26)*smoothstep(16.5,14.,hr),ang=atan(hit.z,hit.x),lr=log(max(hr,.35)),tf=uTm*.85,a1=ang+tf*1.35-lr*4.2,a2=ang*2.+tf*2.15-lr*6.8,f1=fbm(vec3(cos(a1)*2.6,sin(a1)*2.6,hr*1.35-tf*.25)),f2=fbm2(vec3(cos(a2)*3.8,sin(a2)*3.8,hr*2.6+tf*.35)),fil=smoothstep(.22,.86,f1*.64+f2*.36)*(.62+.38*sin(hr*5.2-f1*4.5+tf*.8)),hot=pow(clamp(f2*1.25,0.,1.),3.)*.55,dn=clamp((.3+.92*fil+hot)*rm,0.,1.),bt=clamp(sqrt(.54/max(hr-.32*uEv,.22)),.05,.72),dl=1./max((1./sqrt(max(1.-bt*bt,.08)))*(1.-bt*dot(normalize(vec3(-hit.z,0.,hit.x)),-normalize(rv))),.18),fs=sqrt(clamp(1.-.88*uEv/hr,.08,1.))*mix(1.,dl,uDp),tp=pow(clamp(uIs*1.55/hr,.08,1.9),.66)*pow(max(1.-sqrt(inR/hr),.02),.2);em=bb(tp*mix(1.,fs,.85))*(dn+hot*rm)*pow(clamp(fs,.22,2.35),3.15)*uAc*2.45;al=clamp(dn*.88,0.,.95);}
+  void main(){vec2 n=vUv*2.-1.;vec3 v=normalize(uCF+n.x*uAs*uTF*uCR+n.y*uTF*uCU),p=uCP,acc=vec3(0.);float h2=dot(cross(p,v),cross(p,v)),tr=1.,mR=1e6;bool cap=false;
+    for(int i=0;i<112;i++){if(i>=uMS)break;float r2=dot(p,p),r=sqrt(r2);mR=min(mR,r);if(r<=uEv*1.005){cap=true;break;}if(r>70.&&dot(p,v)>0.)break;float dt=clamp(.056*(r-uEv*.72),.015,1.25);if(r<18.)dt=min(dt,.062+.18*abs(p.y));vec3 nv=normalize(v+(-1.5*uLn*h2*p/max(r2*r2*r,1e-4)+cross(vec3(0.,uSp*uLn*.55,0.),v)/max(r2*r+.15,.15))*dt),np=p+.5*(v+nv)*dt;
+      if(p.y*np.y<=0.&&uAc>.005){vec3 dE;float dA;dsk(mix(p,np,abs(p.y)/(abs(p.y)+abs(np.y)+1e-6)),nv,dE,dA);if(dA>.001){acc+=tr*dE;tr*=1.-dA*.84;}}
+      if(uJt>.5&&abs(np.y)>uEv*.85&&r<26.){float ay=abs(np.y),jr=.24*pow(ay+.25,.6),cr=length(np.xz);if(cr<jr*2.2){float w=exp(-pow(cr/jr,2.)),ha=atan(np.z,np.x)*2.-ay*1.6+uTm*4.5;acc+=tr*mix(vec3(.32,.62,1.),vec3(.95,.78,1.),w)*w*(.55+.75*fbm2(vec3(cos(ha)*1.8,ay*.85-uTm*3.6,sin(ha)*1.8)))*exp(-ay*.085)*smoothstep(uEv*.85,uEv*1.8,ay)*dt*.55;}}
+      if(uS2>.5){vec3 sg=np-p;float dS=length(p+sg*clamp(dot(uS2P-p,sg)/max(dot(sg,sg),1e-6),0.,1.)-uS2P);if(dS<1.35)acc+=tr*vec3(.68,.86,1.)*(exp(-dS*dS*26.)*3.2+exp(-dS*4.2)*.38)*clamp(dt*1.8,.05,.9);}
+      p=np;v=nv;if(tr<.015)break;}
+    float cr=max(1.5*sqrt(max(uLn,.05)),uEv*1.06);acc+=tr*vec3(1.,.85,.58)*exp(-pow((mR-cr)/.072,2.))*(cap?.38:.9)*uAc;gl_FragColor=vec4(acc+tr*(cap?vec3(0.):bg(v)),1.);}`});
+const bhQ=new T.Mesh(fsGeo,bhM);bhQ.frustumCulled=false;bhS.add(bhQ);
+const s2Occ=new T.Mesh(new T.SphereGeometry(2.45,28,20),new T.MeshBasicMaterial({colorWrite:false,depthWrite:true}));bhOS.add(s2Occ);
+const s2N=240,s2G=new T.BufferGeometry(),s2Pos=new Float32Array((s2N+1)*3),s2Ph=new Float32Array(s2N+1);for(let i=0;i<=s2N;i++)s2Ph[i]=i/s2N;
+s2G.setAttribute('position',new T.BufferAttribute(s2Pos,3));s2G.setAttribute('aP',new T.BufferAttribute(s2Ph,1));
+const s2Ln=new T.Line(s2G,mkTrail('#7cc4ff',false));s2Ln.frustumCulled=false;bhOS.add(s2Ln);
+function evalS2(ph,o=new T.Vector3()){const a=22,e=.75;let E=ph;for(let k=0;k<4;k++)E-=(E-e*Math.sin(E)-ph)/(1-e*Math.cos(E));const nu=2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2),Math.sqrt(1-e)*Math.cos(E/2)),r=a*(1-e*Math.cos(E)),ag=nu+ph*.055;return o.set(r*Math.cos(ag),r*Math.sin(ag)*Math.sin(.42),r*Math.sin(ag)*Math.cos(.42));}
+
+/* ---- SCENES, BODIES, DUST, ASTEROIDS, HELIX & SPACETIME ---- */
+const mainS=new T.Scene(),skyS=new T.Scene(),cam=new T.PerspectiveCamera(50,1,.01,6e4),skyC=new T.PerspectiveCamera(50,1,.1,10),spG=new T.Group();mainS.add(spG);
+const bodies={},sphHi=new T.SphereGeometry(1,144,108),sphLo=new T.SphereGeometry(1,56,40);
+const PCFG={Mercury:{cA:'#5d5a57',cB:'#b0aba5',lom:.72,bs:.015},Moon:{cA:'#6e6e70',cB:'#bdbdc0',lom:.78,bs:.016},Mars:{cA:'#7a2f1a',cB:'#d77a4a',lom:.35,bs:.015},Venus:{},Earth:{bs:.012},Jupiter:{cA:'#a8794e',cB:'#e2c9a0',limb:.55,wr:.03,w:1},Saturn:{cA:'#c9b077',cB:'#efe0b0',limb:.5,wr:.03,w:.85},Uranus:{cA:'#7fd0e0',cB:'#a8eaf2',limb:.6,wr:.05,w:.3},Neptune:{cA:'#2f55d0',cB:'#5f8cff',limb:.55,wr:.05,w:.65}};
+const ACFG={Earth:{sh:1.06,bR:[5.8,13.5,33.1],sI:.23},Venus:{sh:1.09,bR:[9,7,3.5],sI:.3},Mars:{sh:1.04,bR:[2.4,1.8,1],sI:.22},Jupiter:{sh:1.05,bR:[3,3.6,4.6],sI:.16},Saturn:{sh:1.05,bR:[3.4,3.2,2.6],sI:.16},Uranus:{sh:1.06,bR:[1.5,6,9],sI:.2},Neptune:{sh:1.06,bR:[1.2,4.5,13],sI:.2}};
+ORDER.forEach(k=>{
+  const m=BODIES[k],root=new T.Group(),ori=new T.Group();root.add(ori);spG.add(root);
+  const b={k,m,root,ori,R:m.visR,effR:m.visR,q:new T.Quaternion(),iq:new T.Quaternion(),camR:99,camD:99};bodies[k]=b;
+  if(k==='Sun'){ori.add(new T.Mesh(sphHi,sunMat));const c=new T.Mesh(new T.PlaneGeometry(2,2),corMat);c.scale.setScalar(5.2);c.renderOrder=5;root.add(c);b.cor=c;root.scale.setScalar(b.effR);return;}
+  const mat=mkPMat(m.kind,PCFG[k]);b.u=mat.userData.u;ori.add(new T.Mesh(sphHi,mat));
+  if(ACFG[k]){const am=mkAtmo(ACFG[k]),at=new T.Mesh(sphLo,am);at.scale.setScalar(ACFG[k].sh);at.renderOrder=3;ori.add(at);b.atm=at;b.aU=am.userData.u;b.aSh=ACFG[k].sh;}
+  if(k==='Earth'){const cm=mkCloud(),cl=new T.Mesh(sphHi,cm);cl.scale.setScalar(1.006);cl.renderOrder=2;ori.add(cl);b.cl=cl;b.cU=cm.userData.u;}
+  if(k==='Saturn'){const g=new T.RingGeometry(1.236,2.327,200,2);g.rotateX(-Math.PI/2);const rm=mkRing(1.236,2.327,false),r=new T.Mesh(g,rm);r.renderOrder=2;ori.add(r);b.rng=r;b.rU=rm.userData.u;b.u.uRng.value.set(1.236,2.327);}
+  if(k==='Uranus'){const g=new T.RingGeometry(1.62,2.04,128,1);g.rotateX(-Math.PI/2);const rm=mkRing(1.62,2.04,true),r=new T.Mesh(g,rm);r.renderOrder=2;ori.add(r);b.rng=r;b.rU=rm.userData.u;}
+  root.scale.setScalar(b.effR);
+  if(m.tex){
+    const ld=(tk,un,mk,cl)=>loadTex(tk,MAX_ANISO,cl).then(t=>{if(t){b.u[un].value=t;if(mk)fadeTo(b.u[mk],1,1);}});
+    if(m.tex.map)ld(m.tex.map,'uM','uMm');if(m.tex.bump)ld(m.tex.bump,'uB','uBm');if(m.tex.spec)ld(m.tex.spec,'uS','uSm');if(m.tex.night)ld(m.tex.night,'uN','uNm');
+    if(m.tex.cloud)loadTex(m.tex.cloud,MAX_ANISO).then(t=>{if(t){b.u.uC.value=b.cU.uC.value=t;fadeTo(b.u.uCm,1,1.2);fadeTo(b.cU.uM,1,1.2);}});
+    if(m.tex.ringC){loadTex(m.tex.ringC,MAX_ANISO,true).then(t=>{if(t){b.rU.uC.value=t;fadeTo(b.rU.uM,1,1);}});loadTex(m.tex.ringA,MAX_ANISO,true).then(t=>{if(t)b.rU.uA.value=b.u.uRA.value=t;});}
+  }
+});
+
+// 3D Cosmic Parallax Dust & 5,000 Asteroids
+const DUST={pts:null,u:{uCP:{value:new T.Vector3()},uPR:{value:1},uTm:U.uTime}};
+(()=>{const N=1400,p=new Float32Array(N*3),c=new Float32Array(N*3);for(let i=0;i<N;i++){p[i*3]=(Math.random()-.5)*60;p[i*3+1]=(Math.random()-.5)*60;p[i*3+2]=(Math.random()-.5)*60;const w=Math.random()<.45;c[i*3]=w?.95:.55;c[i*3+1]=w?.85:.82;c[i*3+2]=w?.65:1;}const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(p,3));g.setAttribute('aC',new T.BufferAttribute(c,3));DUST.pts=new T.Points(g,new T.ShaderMaterial({uniforms:DUST.u,transparent:true,depthWrite:false,blending:T.AdditiveBlending,vertexShader:`attribute vec3 aC;uniform vec3 uCP;uniform float uPR,uTm;varying vec3 vC;varying float vA;void main(){vec3 r=mod(position+vec3(uTm*.06,-uTm*.03,uTm*.04)-uCP+30.,60.)-30.;float d=length(r);vA=smoothstep(30.,14.,d)*smoothstep(1.2,5.5,d)*.35;vC=aC;vec4 mv=modelViewMatrix*vec4(uCP+r,1.);gl_PointSize=clamp(uPR*(22./max(-mv.z,1.)),1.,3.5*uPR);gl_Position=projectionMatrix*mv;}`,fragmentShader:`varying vec3 vC;varying float vA;void main(){float d=length(gl_PointCoord-.5)*2.;if(d>1.||vA<.005)discard;gl_FragColor=vec4(vC*exp(-d*d*5.)*vA,1.);}`}));DUST.pts.frustumCulled=false;spG.add(DUST.pts);})();
+
+const AST={pts:null,u:{uD:{value:0},uSP:{value:new T.Vector3()},uPR:{value:1}}};
+(()=>{const N=5000,aO=new Float32Array(N*4),aC=new Float32Array(N*3);for(let i=0;i<N;i++){aO[i*4]=2.12+Math.random()*1.14;aO[i*4+1]=Math.random()*.16;aO[i*4+2]=(Math.random()-.5)*.3;aO[i*4+3]=Math.random()*6.283;const s=Math.random()<.35,sh=.55+Math.random()*.45;aC[i*3]=sh*(s?.92:.68);aC[i*3+1]=sh*(s?.78:.65);aC[i*3+2]=sh*(s?.64:.62);}const g=new T.BufferGeometry();g.setAttribute('position',new T.BufferAttribute(new Float32Array(N*3),3));g.setAttribute('aO',new T.BufferAttribute(aO,4));g.setAttribute('aC',new T.BufferAttribute(aC,3));AST.pts=new T.Points(g,new T.ShaderMaterial({uniforms:AST.u,transparent:true,depthWrite:false,vertexShader:`attribute vec4 aO;attribute vec3 aC;uniform float uD,uPR;uniform vec3 uSP;varying vec3 vC;varying float vL;void main(){float a=aO.x,e=aO.y,inc=aO.z,ph=aO.w,M=ph+(uD/(365.256*pow(a,1.5)))*6.2832,E=M+e*sin(M),r=a*(1.-e*cos(E)),th=E+ph*.37,xe=r*cos(th),ye=r*sin(th)*cos(inc),ze=r*sin(th)*sin(inc);vec3 wp=uSP+vec3(xe,ye*.3978+ze*.9175,-(ye*.9175-ze*.3978))*120.;vec4 mv=modelViewMatrix*vec4(wp,1.);float d=max(-mv.z,1.);vC=aC;vL=(.45+.55*max(dot(normalize(uSP-wp),normalize(cameraPosition-wp)),-.2))*clamp(320./d,.22,1.35);gl_PointSize=clamp(uPR*(420./d),1.1*uPR,4.*uPR);gl_Position=projectionMatrix*mv;}`,fragmentShader:`varying vec3 vC;varying float vL;void main(){float d=length(gl_PointCoord-.5)*2.;if(d>1.)discard;gl_FragColor=vec4(vC*vL,smoothstep(1.,.25,d)*.78);}`}));AST.pts.frustumCulled=false;spG.add(AST.pts);})();
+
+// Spacetime Grid
+const ST={m:null,u:{uSP:{value:new T.Vector3()},uP:{value:Array.from({length:8},()=>new T.Vector4())},uTm:U.uTime}};
+(()=>{const g=new T.PlaneGeometry(4600,4600,160,160);g.rotateX(-Math.PI/2);const mt=new T.ShaderMaterial({uniforms:ST.u,transparent:true,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide,vertexShader:`uniform vec3 uSP;uniform vec4 uP[8];varying vec3 vW;varying float vWl;void main(){vec3 p=vec3(position.x+uSP.x,uSP.y-position.z*.4335-4.5,position.z+uSP.z);float tw=240./sqrt(dot(p.xz-uSP.xz,p.xz-uSP.xz)+180.);for(int i=0;i<8;i++){vec2 dp=p.xz-uP[i].xz;tw+=uP[i].w/sqrt(dot(dp,dp)+16.);}p.y-=tw;vWl=tw;vW=p;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.);}`,fragmentShader:`uniform vec3 uSP;uniform vec4 uP[8];uniform float uTm;varying vec3 vW;varying float vWl;void main(){vec2 rel=vW.xz-uSP.xz;float r=length(rel);if(r>2250.)discard;vec2 wp=rel*(1.-16./sqrt(r*r+260.));float pw=vWl;for(int i=0;i<8;i++){vec2 dp=vW.xz-uP[i].xz;float d2=dot(dp,dp);wp-=dp*(uP[i].w*.42)/(d2+28.);pw+=uP[i].w*.65/sqrt(d2+8.);}vec2 cC=wp/36.,g=abs(fract(cC-.5)-.5)/max(fwidth(cC),vec2(1e-4));float cR=length(wp)/72.,gr=abs(fract(cR-.5)-.5)/max(fwidth(cR),1e-4),gd=max((1.-min(min(g.x,g.y),1.))*.68,(1.-min(gr,1.))*.88),fe=smoothstep(2250.,900.,r);gl_FragColor=vec4(mix(vec3(.05,.56,.88),vec3(1.,.78,.3),clamp(pw/24.,0.,1.))*gd*fe*(.85+.15*sin(r*.04-uTm*2.))*.9,gd*fe*.82);}`});mt.extensions={derivatives:true};ST.m=new T.Mesh(g,mt);ST.m.frustumCulled=false;ST.m.visible=false;spG.add(ST.m);})();
+
+// Orbits & Helical Trails
+const HLX={ep:Date.now(),dir:new T.Vector3(.18,.9,.395).normalize(),upy:3.2*SCENE_AU,sTr:null,pTr:{},N:220,span:820,lb:0,ls:0};
+const getSunH=(d,en,o=new T.Vector3())=>en?o.copy(HLX.dir).multiplyScalar(((d.getTime()-HLX.ep)/(365.25*864e5))*HLX.upy):o.set(0,0,0);
+function buildHlx(date){
+  const N=HLX.N,tN=date.getTime(),tS=tN-HLX.span*864e5,sA=new Float32Array((N+1)*3),sP=new Float32Array(N+1),t1=new T.Vector3(),t2=new T.Vector3();
+  for(let i=0;i<=N;i++){const f=i/N;getSunH(new Date(tS+f*HLX.span*864e5),true,t1);sA[i*3]=t1.x;sA[i*3+1]=t1.y;sA[i*3+2]=t1.z;sP[i]=f;}
+  if(!HLX.sTr){HLX.sTr=new T.Line(new T.BufferGeometry(),mkTrail('#ffd27a',false));HLX.sTr.frustumCulled=false;spG.add(HLX.sTr);}
+  HLX.sTr.geometry.setAttribute('position',new T.BufferAttribute(sA,3));HLX.sTr.geometry.setAttribute('aP',new T.BufferAttribute(sP,1));HLX.sTr.material.uniforms.uH.value=1;
+  Object.keys(ODAYS).forEach(k=>{
+    const p=new Float32Array((N+1)*3),ph=new Float32Array(N+1);
+    for(let i=0;i<=N;i++){const f=i/N,d=new Date(tS+f*HLX.span*864e5);getSunH(d,true,t1);eqj(A.HelioVector(A.Body[k],d),SCENE_AU,t2).add(t1);p[i*3]=t2.x;p[i*3+1]=t2.y;p[i*3+2]=t2.z;ph[i]=f;}
+    if(!HLX.pTr[k]){HLX.pTr[k]=new T.Line(new T.BufferGeometry(),mkTrail(BODIES[k].color,false));HLX.pTr[k].frustumCulled=false;spG.add(HLX.pTr[k]);}
+    HLX.pTr[k].geometry.setAttribute('position',new T.BufferAttribute(p,3));HLX.pTr[k].geometry.setAttribute('aP',new T.BufferAttribute(ph,1));HLX.pTr[k].material.uniforms.uH.value=1;
+  });
+  HLX.lb=HLX.ls=tN;
+}
+const trails={};let mTrail=null;
+function buildTr(k,d){const N=280,p=new Float32Array((N+1)*3),ph=new Float32Array(N+1),t0=d.getTime(),dy=ODAYS[k];for(let i=0;i<=N;i++){const v=A.HelioVector(A.Body[k],new Date(t0+(i/N)*dy*864e5));p[i*3]=v.x*SCENE_AU;p[i*3+1]=v.z*SCENE_AU;p[i*3+2]=-v.y*SCENE_AU;ph[i]=i/N;}if(!trails[k]){const l=new T.Line(new T.BufferGeometry(),mkTrail(BODIES[k].color,true));l.frustumCulled=false;spG.add(l);trails[k]={l,t0,dy};}trails[k].l.geometry.setAttribute('position',new T.BufferAttribute(p,3));trails[k].l.geometry.setAttribute('aP',new T.BufferAttribute(ph,1));trails[k].t0=t0;}
+
+const marker=new T.Group();marker.visible=false;(()=>{const r=new T.Mesh(new T.RingGeometry(.55,1,36),new T.MeshBasicMaterial({color:0x38e8ff,transparent:true,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide})),d=new T.Mesh(new T.CircleGeometry(.28,20),new T.MeshBasicMaterial({color:0xebd091,transparent:true,depthWrite:false,blending:T.AdditiveBlending,side:T.DoubleSide}));marker.add(r,d);marker.renderOrder=6;bodies.Earth.ori.add(marker);})();
+
+/* ---- SKY, REAL STARS, HORIZON CLOUDS & 3D GALAXY ---- */
+const SKY_R=4,AG=[[-.0549,-.8734,-.4838],[.4941,-.4448,.747],[-.8677,-.1981,.456]];
+const eqU=(ra,dc,r=1,o=new T.Vector3())=>o.set(r*Math.cos(dc*DEG)*Math.cos(ra*DEG),r*Math.sin(dc*DEG),-r*Math.cos(dc*DEG)*Math.sin(ra*DEG));
+const g2e=(l,b,r=1,o=new T.Vector3())=>{const gx=Math.cos(b)*Math.cos(l),gy=Math.cos(b)*Math.sin(l),gz=Math.sin(b);return o.set(r*(AG[0][0]*gx+AG[1][0]*gy+AG[2][0]*gz),r*(AG[0][2]*gx+AG[1][2]*gy+AG[2][2]*gz),-r*(AG[0][1]*gx+AG[1][1]*gy+AG[2][1]*gz));};
+const bv2c=bv=>{const k=46*(1/(.92*clamp(bv,-.4,2)+1.7)+1/(.92*clamp(bv,-.4,2)+.62)),c=[clamp((k<=66?255:329.7*(k-60)**-.133)/255,0,1),clamp((k<=66?99.5*Math.log(k)-161.1:288.1*(k-60)**-.075)/255,0,1),clamp((k>=66?255:k<=19?0:138.5*Math.log(k-10)-305)/255,0,1)],m=Math.max(...c);return c.map(v=>.35+.65*(v/m));};
+const celG=new T.Group(),horG=new T.Group();horG.visible=false;skyS.add(celG,horG);
+const stU={uPR:{value:1},uTm:U.uTime,uV:{value:1},uML:{value:7.5},uH:{value:0},uSI:{value:1},uSz:{value:1}};
+const stM=new T.ShaderMaterial({uniforms:stU,transparent:true,depthTest:false,depthWrite:false,blending:T.AdditiveBlending,vertexShader:`attribute float aM,aS;attribute vec3 aC;uniform float uPR,uTm,uML,uH,uSz,uSI,uV;varying vec3 vC;varying float vB;void main(){vec3 wd=normalize((modelMatrix*vec4(position,1.)).xyz);float b=clamp(1.7*pow(10.,-.4*(aM-3.3)),.16,7.),tw=1.;if(uH>.5){float al=max(wd.y,0.);tw=1.+(.1+.35*smoothstep(.5,0.,al))*sin(uTm*(4.+aS*7.)+aS*60.);b*=exp(-.16*(1./max(al,.035)-1.))*smoothstep(-.015,.01,wd.y);}vB=b*tw*smoothstep(uML+.6,uML-.6,aM)*uSI*uV;vC=aC;gl_PointSize=clamp((2.6+1.8*clamp(4.2-aM,0.,6.))*uPR*uSz,1.5*uPR,18.*uPR);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,fragmentSha

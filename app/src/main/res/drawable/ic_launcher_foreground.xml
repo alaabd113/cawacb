@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Outer relativistic photon ring halo -->
+    <path
+        android:pathData="M54,30a24,24 0,1 0,0.01 0z"
+        android:strokeWidth="1.8"
+        android:strokeColor="#66EBD091"
+        android:fillColor="#00000000" />
+
+    <!-- Gravitational lensed upper & lower light arch -->
+    <path
+        android:pathData="M34,54 C34,39 43,31 54,31 C65,31 74,39 74,54 C74,69 65,77 54,77 C43,77 34,69 34,54 Z"
+        android:strokeWidth="2.8"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="34"
+                android:startY="31"
+                android:endX="74"
+                android:endY="77"
+                android:type="linear">
+                <item android:color="#FFF5D9" android:offset="0.0" />
+                <item android:color="#FF9852" android:offset="0.48" />
+                <item android:color="#38E8FF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Relativistic tilted accretion disk back/front luminous sweep -->
+    <path
+        android:pathData="M21,59 C24,48 42,46 58,49 C74,52 87,59 86,65 C84,71 67,72 51,68 C35,65 19,65 21,59 Z"
+        android:fillColor="#00000000"
+        android:strokeWidth="3.6">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="21"
+                android:startY="56"
+                android:endX="86"
+                android:endY="64"
+                android:type="linear">
+                <item android:color="#FFEAB8" android:offset="0.0" />
+                <item android:color="#FF8C3B" android:offset="0.52" />
+                <item android:color="#EBD091" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Pure Event Horizon Singularity Core -->
+    <path
+        android:pathData="M54,40a14,14 0,1 0,0.01 0z"
+        android:fillColor="#02040A" />
+
+    <!-- Photon Sphere Crisp Golden Edge -->
+    <path
+        android:pathData="M54,39.5a14.5,14.5 0,1 0,0.01 0z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#FFF2C6"
+        android:fillColor="#00000000" />
+
+    <!-- Bright Front Accretion Beam crossing the Event Horizon -->
+    <path
+        android:pathData="M24,57 C36,64 68,66 84,56"
+        android:strokeWidth="4.2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="24"
+                android:startY="57"
+                android:endX="84"
+                android:endY="56"
+                android:type="linear">
+                <item android:color="#38E8FF" android:offset="0.0" />
+                <item android:color="#FFF6DC" android:offset="0.45" />
+                <item android:color="#FF9852" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Orbiting S2 Star Gleam -->
+    <path
+        android:pathData="M74,35a2.6,2.6 0,1 0,0.01 0z"
+        android:fillColor="#38E8FF" />
+    <path
+        android:pathData="M34,74a1.8,1.8 0,1 0,0.01 0z"
+        android:fillColor="#EBD091" />
+</vector>
