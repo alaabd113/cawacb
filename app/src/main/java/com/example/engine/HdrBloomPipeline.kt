@@ -182,7 +182,7 @@ class HdrBloomPipeline(
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, if (bloomEnabled) bloomTexA else sceneTex)
         compProg.setInt("uBloom", 1)
         compProg.setVec2("uTexel", 1f / renderWidth, 1f / renderHeight)
-        compProg.setFloat("uBloomStrength", if (bloomEnabled) 0.68f else 0f)
+        compProg.setFloat("uBloomStrength", if (bloomEnabled) 0.35f else 0f)
         compProg.setFloat("uExposure", exposure)
         compProg.setFloat("uTime", timeSec)
         compProg.setFloat("uHdrDecode", dec)
