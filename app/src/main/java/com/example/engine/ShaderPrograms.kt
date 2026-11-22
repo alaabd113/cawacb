@@ -661,7 +661,7 @@ object ShaderPrograms {
             ) * 0.25 * uHdrDecode;
             c = clamp(c, vec3(0.0), vec3(50.0));
             float br = max(c.r, max(c.g, c.b));
-            float soft = clamp(br - 0.34, 0.0, 1.2);
+            float soft = clamp(br - 0.85, 0.0, 1.2);
             soft = soft * soft / 2.2;
             float contrib = max(soft, br - 0.84) / max(br, 1e-5);
             fragColor = vec4(c * contrib * uHdrEncode, 1.0);
@@ -715,7 +715,7 @@ object ShaderPrograms {
             vec3 hdr = (sc + bloom * uBloomStrength) * uExposure;
             vec3 col = aces(hdr);
             float lum = dot(col, vec3(0.2126, 0.7152, 0.0722));
-            col = mix(vec3(lum), col, 1.15);
+            col = mix(vec3(lum), col, 1.06);
             col *= (1.0 - 0.24 * dot(q, q) * 1.35);
             col = pow(clamp(col, 0.0, 1.0), vec3(1.0 / 2.2));
             float dither = (fract(sin(dot(gl_FragCoord.xy + fract(uTime) * 91.7, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) / 255.0;
