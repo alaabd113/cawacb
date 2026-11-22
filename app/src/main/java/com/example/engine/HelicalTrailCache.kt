@@ -55,7 +55,7 @@ class HelicalTrailCache(
         livePos: Vec3,
         outPoints4: FloatArray
     ): Int {
-        val segs = segments.coerceIn(16, 146)
+        val segs = segments.coerceIn(16, 320)
         val stepMs = spanMs / segs.toDouble()
         val ringCap = segs + 2
 
