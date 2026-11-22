@@ -76,20 +76,20 @@ fun BottomControlDock(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 10.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(7.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Planetary & Singularity Quick Selector Rail
         LuxuryGlassPanel(
             modifier = Modifier.widthIn(max = 880.dp).fillMaxWidth(),
             shape = RoundedCornerShape(999.dp),
             borderColor = HairlineLight,
-            contentPadding = PaddingValues(horizontal = 6.dp, vertical = 5.dp)
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
         ) {
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(5.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 SolarCatalog.planets.forEach { spec ->
@@ -124,15 +124,15 @@ fun BottomControlDock(
             modifier = Modifier.widthIn(max = 880.dp).fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             borderColor = HairlineLight,
-            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 7.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 // Row 1: Studio, Spacetime, Destinations, Settings
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     DockActionButton(
@@ -174,7 +174,7 @@ fun BottomControlDock(
                     modifier = Modifier
                         .fillMaxWidth()
                         .horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CompactIconChip(
@@ -214,7 +214,7 @@ fun BottomControlDock(
                                     RoundedCornerShape(10.dp)
                                 )
                                 .clickable { onSelectSpeed(idx) }
-                                .padding(horizontal = 9.dp, vertical = 7.dp),
+                                .padding(horizontal = 12.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -254,7 +254,7 @@ private fun DockActionButton(
                 RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 11.dp, vertical = 8.dp),
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
