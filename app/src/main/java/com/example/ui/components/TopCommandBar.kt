@@ -80,8 +80,8 @@ fun TopCommandBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 10.dp, vertical = 6.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -92,7 +92,7 @@ fun TopCommandBar(
             LuxuryGlassPanel(
                 shape = RoundedCornerShape(999.dp),
                 borderColor = HairlineGold,
-                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 7.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
@@ -160,7 +160,7 @@ fun TopCommandBar(
 
             // Tools: 8D Audio + Snapshot + Cinema Mode
             Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
@@ -257,7 +257,7 @@ private fun ModeSelectorBar(
         modifier = modifier,
         shape = RoundedCornerShape(999.dp),
         borderColor = HairlineLight,
-        contentPadding = PaddingValues(horizontal = 5.dp, vertical = 4.dp)
+        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
