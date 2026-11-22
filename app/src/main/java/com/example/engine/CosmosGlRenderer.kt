@@ -169,9 +169,9 @@ class CosmosGlRenderer(
     private val tmpIn4 = FloatArray(4)
     private val tmpOut4 = FloatArray(4)
     private val spacetimePacked = FloatArray(8 * 4)
-    private val helicalPointsBuf = FloatArray(160 * 4)
+    private val helicalPointsBuf = FloatArray(340 * 4)
     private val s2PointsBuf = FloatArray(150 * 4)
-    private val ribbonVertsScratch = FloatArray(200 * 2 * 5)
+    private val ribbonVertsScratch = FloatArray(360 * 2 * 5)
     private val constellationBuf = FloatArray(64 * 4)
     private val skyPlanetDirs = FloatArray(5 * 4)
     private val skyPlanetCols = FloatArray(5 * 3)
@@ -201,7 +201,7 @@ class CosmosGlRenderer(
     }
 
     fun onDrag(dx: Float, dy: Float) {
-        val sens = 0.0052f
+        val sens = 0.0034f
         val dAz = -dx * 0.16f
         val dAlt = dy * 0.14f
         when (uiState.mode) {
@@ -224,8 +224,8 @@ class CosmosGlRenderer(
                 val dP = -dy * sens
                 targetTheta += dT
                 targetPhi = (targetPhi + dP).coerceIn(0.12f, 3.02f)
-                orbitVelTheta = (orbitVelTheta * 0.45f + dT * 24f).coerceIn(-4.5f, 4.5f)
-                orbitVelPhi = (orbitVelPhi * 0.45f + dP * 20f).coerceIn(-3.0f, 3.0f)
+                orbitVelTheta = (orbitVelTheta * 0.45f + dT * 16f).coerceIn(-3.2f, 3.2f)
+                orbitVelPhi = (orbitVelPhi * 0.45f + dP * 13f).coerceIn(-2.0f, 2.0f)
             }
         }
     }
@@ -248,7 +248,7 @@ class CosmosGlRenderer(
             }
             CosmosMode.SPACE -> {
                 val spec = SolarCatalog.byId.getValue(uiState.selectedBody)
-                val minR = (spec.visualRadius * uiState.studio.planetScale * 1.48f).coerceAtLeast(0.8f)
+                val minR = (spec.visualRadius * uiState.studio.planetScale * 1.12f).coerceAtLeast(0.8f)
                 targetRadius = (targetRadius * inv).coerceIn(minR, 2400f)
             }
         }
@@ -336,7 +336,7 @@ class CosmosGlRenderer(
         streakMesh = GlGeometry.createVelocityStreaks(if (isSoftwareGpu) 180 else 280)
         asteroidMesh = GlGeometry.createAsteroidBelt(if (isSoftwareGpu) 2000 else 3400)
         dustMesh = GlGeometry.createCosmicDust(if (isSoftwareGpu) 700 else 1100)
-        sharedRibbonMesh = GlGeometry.createDynamicRibbon(200)
+        sharedRibbonMesh = GlGeometry.createDynamicRibbon(360)
         constellationMesh = GlGeometry.createDynamicTrail(256)
 
         hdrPipeline = HdrBloomPipeline(fsMesh, preProg, blurProg, compProg)
@@ -351,8 +351,8 @@ class CosmosGlRenderer(
     }
 
     private fun applyAdaptivePipelineResize(st: CosmosUiState) {
-        val effScale = (st.settings.quality.resolutionScale * dynamicScale).coerceIn(0.40f, 1.0f)
-        val maxEdge = if (isSoftwareGpu) 680 else 1440
+        val effScale = (st.settings.quality.resolutionScale * dynamicScale).coerceIn(0.55f, 1.0f)
+        val maxEdge = if (isSoftwareGpu) 960 else 1920
         hdrPipeline.resize(
             screenWidth = viewportW,
             screenHeight = viewportH,
@@ -952,7 +952,7 @@ class CosmosGlRenderer(
 
         if (helical) {
             // Sliding-window cached 920-day 3D plasma corkscrew wakes (>95% faster CPU than per-frame full VSOP87 rebuild!)
-            val segs = if (isSoftwareGpu) 108 else 136
+            val segs = if (isSoftwareGpu) 160 else 320
             val helicalIds = listOf(
                 CelestialBodyId.SUN,
                 CelestialBodyId.MERCURY,
