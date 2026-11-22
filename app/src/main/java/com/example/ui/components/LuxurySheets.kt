@@ -465,4 +465,12 @@ private fun SettingsSheetContent(
     LuxuryToggleRow("خطوط الأبراج السماوية", checked = settings.constellations, onCheckedChange = { c -> onUpdate { it.copy(constellations = c) } })
     LuxuryToggleRow("مقياس مسافات حقيقي 1:1", checked = settings.trueScale, onCheckedChange = { c -> onUpdate { it.copy(trueScale = c) } })
     LuxuryToggleRow("توهّج HDR السينمائي (Bloom)", checked = settings.hdrBloom, onCheckedChange = { c -> onUpdate { it.copy(hdrBloom = c) } })
+
+    LuxurySectionHeader("الحقوق والمصادر")
+    Text(
+        text = stringResource(R.string.credits_textures),
+        color = Color(0xFF9AA3B2),
+        fontSize = 11.sp,
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 4.dp)
+    )
 }
