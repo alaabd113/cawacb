@@ -17,19 +17,26 @@ enum class PlanetTexKey(val urls: List<String>) {
         "https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthcloudmaptrans.jpg"
     )),
     MOON_MAP(listOf(
+        "https://www.solarsystemscope.com/textures/download/2k_moon.jpg",
         "https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/moonmap1k.jpg",
         "https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/moonmap1k.jpg"
     )),
-    MERCURY_MAP(listOf("https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/mercurymap.jpg")),
+    MERCURY_MAP(listOf(
+        "https://www.solarsystemscope.com/textures/download/2k_mercury.jpg",
+        "https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/mercurymap.jpg"
+    )),
     MARS_MAP(listOf(
+        "https://www.solarsystemscope.com/textures/download/2k_mars.jpg",
         "https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/marsmap1k.jpg",
         "https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/marsmap1k.jpg"
     )),
     JUPITER_MAP(listOf(
+        "https://www.solarsystemscope.com/textures/download/2k_jupiter.jpg",
         "https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/jupitermap.jpg",
         "https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/jupitermap.jpg"
     )),
     SATURN_MAP(listOf(
+        "https://www.solarsystemscope.com/textures/download/2k_saturn.jpg",
         "https://cdn.jsdelivr.net/gh/jeromeetienne/threex.planets@master/images/saturnmap.jpg",
         "https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/saturnmap.jpg"
     )),
@@ -53,7 +60,7 @@ class PlanetTextureLoader(
                     val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
                     var sample = 1
-                    while (bounds.outWidth / sample > 2048 || bounds.outHeight / sample > 2048) {
+                    while (bounds.outWidth / sample > 4096 || bounds.outHeight / sample > 4096) {
                         sample *= 2
                     }
                     val opts = BitmapFactory.Options().apply {
