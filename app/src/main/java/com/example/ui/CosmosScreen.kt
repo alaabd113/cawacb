@@ -200,7 +200,7 @@ fun CosmosScreen(
                     exit = fadeOut(),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 10.dp, end = 10.dp, top = 2.dp)
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                 ) {
                     if (isWideScreen) {
                         Row(
