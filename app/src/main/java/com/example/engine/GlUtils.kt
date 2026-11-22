@@ -126,6 +126,13 @@ object GlUtils {
         GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_CLAMP_TO_EDGE)
         GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bitmap, 0)
         GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D)
+        // Sharper textures at glancing angles when the GPU supports anisotropic filtering
+        val extensions = GLES30.glGetString(GLES30.GL_EXTENSIONS) ?: ""
+        if (extensions.contains("GL_EXT_texture_filter_anisotropic")) {
+            val maxAniso = FloatArray(1)
+            GLES30.glGetFloatv(0x84FF, maxAniso, 0) // GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT
+            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, 0x84FE, minOf(maxAniso[0], 4f)) // GL_TEXTURE_MAX_ANISOTROPY_EXT
+        }
         GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0)
         return tex
     }
